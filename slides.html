@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaultrix - Team Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #111827;
+    --bg-card: #1a2235;
+    --accent: #6366f1;
+    --accent-light: #818cf8;
+    --accent-glow: rgba(99, 102, 241, 0.3);
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --cyan: #06b6d4;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: #1e293b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* Slide Container */
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    overflow-y: auto;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .slide.prev {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* Typography */
+  h1 { font-size: 3.2rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
+  h2 { font-size: 2.2rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 32px; }
+  h3 { font-size: 1.4rem; font-weight: 600; margin-bottom: 12px; }
+  p  { font-size: 1.15rem; line-height: 1.7; color: var(--text-secondary); }
+
+  .accent { color: var(--accent-light); }
+  .green  { color: var(--green); }
+  .yellow { color: var(--yellow); }
+  .red    { color: var(--red); }
+  .cyan   { color: var(--cyan); }
+  .muted  { color: var(--text-muted); font-size: 0.95rem; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  /* Layout helpers */
+  .content { max-width: 1100px; width: 100%; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card h3 { margin-bottom: 10px; }
+  .card p  { font-size: 1rem; }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 2px 4px 2px 0;
+  }
+  .tag-green  { background: rgba(16,185,129,0.15); color: var(--green); }
+  .tag-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .tag-red    { background: rgba(239,68,68,0.15);  color: var(--red); }
+  .tag-accent { background: rgba(99,102,241,0.15); color: var(--accent-light); }
+  .tag-cyan   { background: rgba(6,182,212,0.15);  color: var(--cyan); }
+
+  /* Lists */
+  ul { list-style: none; padding: 0; }
+  ul li {
+    position: relative;
+    padding: 8px 0 8px 28px;
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  ul li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 16px;
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    background: var(--accent);
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-card);
+    border-radius: 4px;
+    margin: 8px 0 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  /* Architecture diagram */
+  .arch-layer {
+    width: 100%;
+    padding: 18px 24px;
+    border-radius: 10px;
+    margin: 6px 0;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    position: relative;
+  }
+  .arch-layer::after {
+    content: '';
+    display: block;
+    width: 2px; height: 12px;
+    background: var(--text-muted);
+    margin: 0 auto;
+    position: absolute;
+    bottom: -12px; left: 50%;
+  }
+  .arch-layer:last-child::after { display: none; }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    gap: 0;
+    width: 100%;
+  }
+  .timeline-item {
+    flex: 1;
+    padding: 16px 12px;
+    border-top: 3px solid var(--border);
+    position: relative;
+  }
+  .timeline-item.done   { border-top-color: var(--green); }
+  .timeline-item.active { border-top-color: var(--yellow); }
+  .timeline-item .phase-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .timeline-item h3 { font-size: 1rem; margin-bottom: 6px; }
+  .timeline-item p  { font-size: 0.85rem; }
+
+  /* Navigation */
+  .nav {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+    align-items: center;
+  }
+  .nav button {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav button:hover { background: var(--accent); border-color: var(--accent); }
+  .nav .counter {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Slide-specific */
+  .hero-subtitle {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    margin-top: 16px;
+    font-weight: 400;
+  }
+  .hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: rgba(99,102,241,0.15);
+    color: var(--accent-light);
+    margin-top: 24px;
+  }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 24px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 2.4rem; font-weight: 800; color: var(--accent-light); }
+  .stat .label { font-size: 0.9rem; color: var(--text-muted); margin-top: 4px; }
+
+  .collab-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    border-left: 4px solid var(--accent);
+  }
+  .collab-card h3 { color: var(--accent-light); }
+  .collab-card + .collab-card { margin-top: 16px; }
+
+  .shield-icon { font-size: 4rem; margin-bottom: 16px; }
+
+  .section-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent-light);
+    margin-bottom: 8px;
+  }
+
+  /* Background decorations */
+  .bg-glow {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .bg-glow-1 { background: var(--accent); top: -100px; right: -100px; }
+  .bg-glow-2 { background: var(--cyan); bottom: -150px; left: -100px; }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ===================== SLIDE 1: TITLE ===================== -->
+  <div class="slide active" data-slide="0">
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="content" style="text-align:center;">
+      <div style="font-size:5rem; margin-bottom:8px;">&#x1F6E1;</div>
+      <h1>Vaultrix</h1>
+      <p class="hero-subtitle">Secure, Sandboxed, Human-Guided<br>Autonomous AI Framework</p>
+      <div class="hero-badge">v0.2 &middot; Multi-Agent Security</div>
+      <div class="stat-grid" style="margin-top:48px;">
+        <div class="stat"><div class="num">7</div><div class="label">Security Layers</div></div>
+        <div class="stat"><div class="num">10+</div><div class="label">Modules</div></div>
+        <div class="stat"><div class="num">40+</div><div class="label">Python Files</div></div>
+        <div class="stat"><div class="num">Multi</div><div class="label">Agent Ready</div></div>
+      </div>
+      <p class="muted" style="margin-top:40px;">Team Collaboration Deck &middot; March 2026</p>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 2: PROBLEM ===================== -->
+  <div class="slide" data-slide="1">
+    <div class="content">
+      <div class="section-label">The Problem</div>
+      <h2>Autonomous AI Agents Are Powerful &mdash;<br>But <span class="red">Uncontrolled</span></h2>
+      <div class="two-col" style="margin-top:32px;">
+        <div>
+          <ul>
+            <li>AI agents can execute code, access files, and call APIs</li>
+            <li>No standard security boundary between agent and host</li>
+            <li>Single-layer security models are brittle</li>
+            <li>Limited human oversight in critical operations</li>
+            <li>Data leakage and privilege escalation risks</li>
+            <li><strong class="yellow">Multi-agent systems multiply the attack surface</strong></li>
+            <li><strong class="yellow">Agent-to-agent communication creates new trust boundaries</strong></li>
+          </ul>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;justify-content:center;">
+          <h3 class="red">Real-World Risks</h3>
+          <p style="margin-top:8px;">An unconstrained agent could read sensitive files, exfiltrate data over the network, install malicious packages, or modify system configurations &mdash; all while appearing helpful.</p>
+          <p style="margin-top:16px;font-weight:600;color:var(--text-primary);">We need defense-in-depth, not defense-in-hope.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 3: SOLUTION ===================== -->
+  <div class="slide" data-slide="2">
+    <div class="content">
+      <div class="section-label">Our Solution</div>
+      <h2>Defense-in-Depth for AI Agents</h2>
+      <p style="max-width:700px;margin-bottom:32px;">Vaultrix wraps autonomous agents in <strong>5 independent security layers</strong> so that no single failure compromises the system.</p>
+      <div style="max-width:600px;">
+        <div class="arch-layer" style="background:rgba(99,102,241,0.15);color:var(--accent-light);">
+          Layer 1 &middot; Application (Input Validation)
+        </div>
+        <div class="arch-layer" style="background:rgba(6,182,212,0.12);color:var(--cyan);margin-top:18px;">
+          Layer 2 &middot; Permissions (Granular Access Control)
+        </div>
+        <div class="arch-layer" style="background:rgba(245,158,11,0.12);color:var(--yellow);margin-top:18px;">
+          Layer 3 &middot; Approval (Human-in-the-Loop)
+        </div>
+        <div class="arch-layer" style="background:rgba(16,185,129,0.12);color:var(--green);margin-top:18px;">
+          Layer 4 &middot; Sandbox (Docker Isolation)
+        </div>
+        <div class="arch-layer" style="background:rgba(239,68,68,0.12);color:var(--red);margin-top:18px;">
+          Layer 5 &middot; Encryption (Data Protection)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 4: ARCHITECTURE ===================== -->
+  <div class="slide" data-slide="3">
+    <div class="content">
+      <div class="section-label">Architecture</div>
+      <h2>Execution Flow</h2>
+      <div class="card" style="margin-bottom:28px;padding:24px 32px;">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;color:var(--accent-light);text-align:center;line-height:2;">
+          User Input &rarr; CLI Parser &rarr; <span class="cyan">Permission Check</span> &rarr; <span class="yellow">Risk Assessment</span> &rarr; <span class="yellow">HITL Approval</span> &rarr; <span class="green">Sandbox Execution</span> &rarr; Audit Log &rarr; Result
+        </p>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <h3>Core Components</h3>
+          <ul>
+            <li><strong>VaultrixAgent</strong> &mdash; orchestration &amp; lifecycle</li>
+            <li><strong>SandboxManager</strong> &mdash; Docker/local isolation</li>
+            <li><strong>PermissionManager</strong> &mdash; deny-by-default ACL</li>
+            <li><strong>AgentOrchestrator</strong> &mdash; multi-agent coordination</li>
+            <li><strong>SecureChannel</strong> &mdash; encrypted inter-agent comms</li>
+            <li><strong>EncryptionManager</strong> &mdash; AES-256, Ed25519 signing</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Design Principles</h3>
+          <ul>
+            <li><strong>Least Privilege</strong> &mdash; explicit grants only</li>
+            <li><strong>Fail-Safe Defaults</strong> &mdash; ambiguity = deny</li>
+            <li><strong>Complete Mediation</strong> &mdash; every op verified</li>
+            <li><strong>Path Traversal Immune</strong> &mdash; POSIX normalization</li>
+            <li><strong>Zero Trust Between Agents</strong> &mdash; no implicit trust</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 5: MULTI-AGENT SECURITY (NEW) ===================== -->
+  <div class="slide" data-slide="4">
+    <div class="content">
+      <div class="section-label">New in v0.2</div>
+      <h2>Multi-Agent Security</h2>
+      <div class="two-col" style="margin-top:8px;">
+        <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;line-height:1.7;color:var(--text-secondary);white-space:pre;">
++-----------------------+
+|    ORCHESTRATOR       |
+|  (lead agent)         |
++-----------+-----------+
+            |
+   +--------+--------+
+   |  SECURE CHANNEL  |
+   | (encrypted, typed)|
+   +--+-----+------+--+
+      |     |      |
+  +---+- +--+-- +--+---+
+  |AGENT| |AGENT| |AGENT|
+  |Rsrch| |Coder| |Revwr|
+  +-----+ +-----+ +-----+
+  [sand]  [sand]  [sand]</div>
+        <div>
+          <ul>
+            <li>Each agent gets its <strong>own sandbox</strong> &mdash; full isolation</li>
+            <li><strong>Encrypted inter-agent channel</strong> &mdash; AES-256 comms</li>
+            <li><strong>Trust matrix</strong> with 5 levels (untrusted to full)</li>
+            <li><strong>Rate limits + size caps</strong> on all messages</li>
+            <li><strong>Typed TaskHandoff protocol</strong> &mdash; no arbitrary payloads</li>
+            <li><strong>Full audit trail</strong> &mdash; every handoff logged</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 6: TRUST MATRIX (NEW) ===================== -->
+  <div class="slide" data-slide="5">
+    <div class="content">
+      <div class="section-label">Access Control</div>
+      <h2>Trust-Based Access Control</h2>
+      <div class="card" style="margin-bottom:24px;overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);">
+              <th style="text-align:left;padding:12px 16px;color:var(--text-muted);">Agent</th>
+              <th style="text-align:center;padding:12px 16px;color:var(--text-muted);">Execute</th>
+              <th style="text-align:center;padding:12px 16px;color:var(--text-muted);">Read Files</th>
+              <th style="text-align:center;padding:12px 16px;color:var(--text-muted);">Write Files</th>
+              <th style="text-align:center;padding:12px 16px;color:var(--text-muted);">Network</th>
+              <th style="text-align:center;padding:12px 16px;color:var(--text-muted);">Share Resources</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 16px;font-weight:600;">lead</td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-green">TRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-green">TRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-green">TRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-yellow">RESTRICTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-green">TRUSTED</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 16px;font-weight:600;">worker-1</td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-yellow">RESTRICTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-green">TRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-yellow">RESTRICTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-yellow">RESTRICTED</span></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 16px;font-weight:600;">worker-2</td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-yellow">RESTRICTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-yellow">RESTRICTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-yellow">RESTRICTED</span></td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px;font-weight:600;">worker-3</td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+              <td style="text-align:center;padding:12px 16px;"><span class="tag tag-red">UNTRUSTED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="max-width:800px;">
+        <strong class="green">Resource sharing</strong> requires TRUSTED level.
+        <strong class="yellow">Communication</strong> requires at minimum RESTRICTED.
+        <strong class="red">Untrusted</strong> = completely blocked.
+      </p>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 7: RESILIENCE (NEW) ===================== -->
+  <div class="slide" data-slide="6">
+    <div class="content">
+      <div class="section-label">Resilience</div>
+      <h2>Production-Grade Resilience <span class="muted">(Inspired by DeepAudit)</span></h2>
+      <div class="three-col" style="margin-top:8px;">
+        <div class="card">
+          <h3><span class="cyan">Circuit Breaker</span></h3>
+          <p>3-state pattern (closed, open, half-open). Separate presets for LLM calls and tool execution. Auto-recovery with configurable thresholds.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-cyan">3-State</span>
+            <span class="tag tag-cyan">LLM + Tool</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="yellow">Fallback Handler</span></h3>
+          <p>Automatic context reduction on token overflow. Tool-level fallback chains. Graceful degradation instead of hard failure.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-yellow">Context Reduction</span>
+            <span class="tag tag-yellow">Tool Fallbacks</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="green">Input Validation</span></h3>
+          <p>Full input sanitization pipeline. Path traversal detection and blocking. Typed schemas for all inter-agent messages.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-green">Sanitization</span>
+            <span class="tag tag-green">Typed Schemas</span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:24px;text-align:center;">
+        <p style="color:var(--text-primary);font-weight:500;">Also: <span class="accent">Anti-hallucination guards</span>, <span class="cyan">cancellation support</span>, <span class="green">structured agent state with 7-state lifecycle</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 8: KEY FEATURES ===================== -->
+  <div class="slide" data-slide="7">
+    <div class="content">
+      <div class="section-label">Key Features</div>
+      <h2>What We've Built (v0.2)</h2>
+      <div class="three-col" style="margin-top:8px;">
+        <div class="card">
+          <h3><span class="green">Sandbox Manager</span></h3>
+          <p>Docker-based isolation with resource limits (CPU, memory, storage). Network disabled by default. Auto-detects environment.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-green">Docker</span>
+            <span class="tag tag-green">Local Fallback</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="cyan">Permission System</span></h3>
+          <p>5-level hierarchy (NONE to ADMIN), 6 resource types, risk classification. Whitelist-based with full audit logging.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-cyan">Deny-by-Default</span>
+            <span class="tag tag-cyan">Audit Trail</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="accent">Agent Core</span></h3>
+          <p>Permission-aware execution engine with context manager support, action history, real-time status monitoring, and anti-hallucination guards.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-accent">Claude SDK</span>
+            <span class="tag tag-accent">Anti-Hallucination</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="yellow">CLI Interface</span></h3>
+          <p>Interactive REPL with rich terminal output. Commands for status, logs, exec, and permission set selection.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-yellow">Click</span>
+            <span class="tag tag-yellow">Rich</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="green">Skill Scanner (VaultHub)</span></h3>
+          <p>Security scanner for third-party skills. Manifest validation, signature verification, vulnerability detection.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-green">Scanner</span>
+            <span class="tag tag-green">Signing</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="red">Encryption at Rest</span></h3>
+          <p>AES-256 encryption for stored data, Ed25519 skill signing, secure key management with configurable backends.</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-red">AES-256</span>
+            <span class="tag tag-red">Ed25519</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 9: LIVE DEMO ===================== -->
+  <div class="slide" data-slide="8">
+    <div class="content">
+      <div class="section-label">Demo</div>
+      <h2>See It in Action</h2>
+      <div class="two-col" style="margin-top:8px;">
+        <div class="card">
+          <h3><span class="green">Single-Agent Demo</span></h3>
+          <p style="margin-top:8px;"><code>python examples/cli_demo.py</code></p>
+          <ul style="margin-top:12px;">
+            <li>Sandbox creation &amp; isolation</li>
+            <li>Permission checks (deny-by-default)</li>
+            <li>Risk assessment &amp; classification</li>
+            <li>Human-in-the-loop approval</li>
+            <li>Encryption at rest</li>
+            <li>Full audit trail output</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="cyan">Multi-Agent Demo</span></h3>
+          <p style="margin-top:8px;"><code>python examples/multi_agent_demo.py</code></p>
+          <ul style="margin-top:12px;">
+            <li>Orchestrator + worker agent setup</li>
+            <li>Trust matrix enforcement</li>
+            <li>Encrypted inter-agent messaging</li>
+            <li>TaskHandoff protocol in action</li>
+            <li>Cross-agent audit trail</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="margin-top:24px;text-align:center;">
+        <p style="color:var(--text-primary);font-weight:500;">Interactive mode: <code>vaultrix start --interactive</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 10: TECH STACK ===================== -->
+  <div class="slide" data-slide="9">
+    <div class="content">
+      <div class="section-label">Tech Stack</div>
+      <h2>Built with Modern Python</h2>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-bottom:16px;">Core</h3>
+          <div class="card" style="margin-bottom:12px;"><strong>Python 3.10+</strong> <span class="muted">&mdash; async-ready, type hints</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>Docker 20.10+</strong> <span class="muted">&mdash; container isolation</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>Anthropic SDK</strong> <span class="muted">&mdash; Claude LLM integration</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>Pydantic 2.0</strong> <span class="muted">&mdash; type safety &amp; validation</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>Click + Rich</strong> <span class="muted">&mdash; CLI framework &amp; terminal UI</span></div>
+          <div class="card"><strong>Cryptography</strong> <span class="muted">&mdash; AES-256, Ed25519 signing</span></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:16px;">Upcoming (Phase 2+)</h3>
+          <div class="card" style="margin-bottom:12px;"><strong>FastAPI</strong> <span class="muted">&mdash; VaultHub REST API</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>SQLAlchemy + PostgreSQL</strong> <span class="muted">&mdash; skill registry DB</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>Flask</strong> <span class="muted">&mdash; web dashboard UI</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>React</strong> <span class="muted">&mdash; review dashboard frontend</span></div>
+          <h3 style="margin-top:24px;margin-bottom:16px;">Dev Tooling</h3>
+          <div class="card" style="margin-bottom:12px;"><strong>Black + Ruff + MyPy</strong> <span class="muted">&mdash; code quality</span></div>
+          <div class="card"><strong>pytest</strong> <span class="muted">&mdash; testing with fixtures &amp; coverage</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 11: ROADMAP ===================== -->
+  <div class="slide" data-slide="10">
+    <div class="content">
+      <div class="section-label">Roadmap</div>
+      <h2>6-Phase Plan to V1 Launch</h2>
+      <div class="timeline" style="margin-top:24px;">
+        <div class="timeline-item done">
+          <div class="phase-label green">Phase 1+2 &middot; Done</div>
+          <h3>Architecture, Sandbox &amp; Multi-Agent</h3>
+          <p>Core engine, permissions, sandbox, multi-agent orchestration, secure channels, CLI, tests, docs</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green);"></div></div>
+          <span class="muted">100%</span>
+        </div>
+        <div class="timeline-item active">
+          <div class="phase-label yellow">Phase 3 &middot; Next</div>
+          <h3>VaultHub Registry</h3>
+          <p>Skill marketplace, security scanner, signing, FastAPI</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:10%;background:var(--yellow);"></div></div>
+          <span class="muted">Target: Apr 4</span>
+        </div>
+        <div class="timeline-item">
+          <div class="phase-label muted">Phase 4</div>
+          <h3>Human-in-the-Loop</h3>
+          <p>Approval UI, action classification, notifications</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%;"></div></div>
+          <span class="muted">Target: May 2</span>
+        </div>
+        <div class="timeline-item">
+          <div class="phase-label muted">Phase 5</div>
+          <h3>Beta &amp; Audit</h3>
+          <p>Pen testing, closed beta, 3rd-party audit, perf tuning</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%;"></div></div>
+          <span class="muted">Target: Jun 27</span>
+        </div>
+        <div class="timeline-item">
+          <div class="phase-label muted">Phase 6</div>
+          <h3>V1 Launch</h3>
+          <p>Open source, community, bounty program</p>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%;"></div></div>
+          <span class="muted">Target: Jul 25</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 12: COLLABORATION ===================== -->
+  <div class="slide" data-slide="11">
+    <div class="content">
+      <div class="section-label">Collaboration Opportunities</div>
+      <h2>Where We Need Your Help</h2>
+      <div class="three-col" style="margin-top:8px;">
+        <div class="collab-card" style="border-left-color:var(--red);">
+          <h3 style="color:var(--red);">Security Researcher</h3>
+          <p>Sandbox escape testing, multi-agent trust model review, threat modeling, penetration testing, permission boundary fuzzing, supply chain security</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-red">2-3 people</span>
+          </div>
+        </div>
+        <div class="collab-card" style="border-left-color:var(--accent);">
+          <h3 style="color:var(--accent-light);">LLM / Agent Engineer</h3>
+          <p>Multi-agent orchestration, ReAct loop optimization, anti-hallucination, tool-call security, circuit breaker &amp; fallback strategies, RAG knowledge base</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-accent">2-3 people</span>
+          </div>
+        </div>
+        <div class="collab-card" style="border-left-color:var(--yellow);">
+          <h3 style="color:var(--yellow);">Cryptography Engineer</h3>
+          <p>Skill signing &amp; verification, key management system, encrypted channel protocols, zero-knowledge proofs, secure multi-party computation</p>
+          <div style="margin-top:12px;">
+            <span class="tag tag-yellow">1-2 people</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SLIDE 13: CLOSING ===================== -->
+  <div class="slide" data-slide="12">
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="content" style="text-align:center;">
+      <div style="font-size:4rem;margin-bottom:12px;">&#x1F6E1;</div>
+      <h1>Let's Build <span class="accent">Trustworthy AI</span><br>Together</h1>
+      <p class="hero-subtitle" style="max-width:600px;margin:20px auto 0;">
+        Vaultrix makes autonomous agents safe by design.<br>
+        We're looking for collaborators across every layer of the stack.
+      </p>
+      <div style="margin-top:48px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <span class="tag tag-green" style="font-size:1rem;padding:8px 20px;">Phase 1+2 Complete</span>
+        <span class="tag tag-cyan" style="font-size:1rem;padding:8px 20px;">Multi-Agent Security</span>
+        <span class="tag tag-accent" style="font-size:1rem;padding:8px 20px;">V1 Target: July 2026</span>
+      </div>
+      <p class="muted" style="margin-top:48px;">Questions? Ideas? Let's discuss.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <span class="counter" id="counter">1 / 13</span>
+  <button id="prev" aria-label="Previous slide">&#8592;</button>
+  <button id="next" aria-label="Next slide">&#8594;</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add(n > current ? 'prev' : '');
+    current = n;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev');
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+    });
+    document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'Home') goTo(0);
+    if (e.key === 'End') goTo(total - 1);
+  });
+
+  // Touch support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { diff > 0 ? goTo(current + 1) : goTo(current - 1); }
+  });
+</script>
+</body>
+</html>

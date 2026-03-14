@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 420" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050816"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="a3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#475569"/>
+    </marker>
+    <marker id="a3g" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#10b981"/>
+    </marker>
+    <marker id="a3r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#ef4444"/>
+    </marker>
+  </defs>
+
+  <rect width="780" height="420" fill="url(#bg3)" rx="16"/>
+
+  <text x="390" y="32" text-anchor="middle" fill="#f1f5f9" font-size="18" font-weight="800">Permission &amp; Execution Flow</text>
+  <text x="390" y="50" text-anchor="middle" fill="#64748b" font-size="11">Every action goes through permission check, risk classification, and optional HITL approval</text>
+
+  <!-- Step 1: Action Request -->
+  <rect x="30" y="80" width="140" height="55" rx="10" fill="#6366f1" fill-opacity="0.15" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="100" y="103" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="700">Action Request</text>
+  <text x="100" y="120" text-anchor="middle" fill="#818cf8" font-size="9">tool call / command</text>
+
+  <!-- Arrow -->
+  <path d="M170 107 L200 107" stroke="#475569" stroke-width="1.5" marker-end="url(#a3)"/>
+
+  <!-- Step 2: Permission Check -->
+  <rect x="205" y="80" width="150" height="55" rx="10" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-width="1.5"/>
+  <text x="280" y="103" text-anchor="middle" fill="#67e8f9" font-size="11" font-weight="700">Permission Check</text>
+  <text x="280" y="120" text-anchor="middle" fill="#06b6d4" font-size="9">resource + level + path</text>
+
+  <!-- Branch: Denied -->
+  <path d="M280 135 L280 170" stroke="#ef4444" stroke-width="1.5" marker-end="url(#a3r)"/>
+  <rect x="210" y="175" width="140" height="40" rx="8" fill="#ef4444" fill-opacity="0.12" stroke="#ef4444" stroke-width="1"/>
+  <text x="280" y="200" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="700">DENIED</text>
+  <text x="280" y="170" text-anchor="middle" fill="#ef4444" font-size="8">if no matching rule</text>
+
+  <!-- Arrow to log -->
+  <path d="M280 215 L280 250" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#a3r)"/>
+  <rect x="220" y="255" width="120" height="30" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="280" y="275" text-anchor="middle" fill="#94a3b8" font-size="10">Audit Log</text>
+
+  <!-- Arrow: Allowed -->
+  <path d="M355 107 L400 107" stroke="#10b981" stroke-width="1.5" marker-end="url(#a3g)"/>
+  <text x="377" y="100" text-anchor="middle" fill="#10b981" font-size="8">allowed</text>
+
+  <!-- Step 3: Risk Classification -->
+  <rect x="405" y="80" width="150" height="55" rx="10" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="480" y="103" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="700">Risk Classifier</text>
+  <text x="480" y="120" text-anchor="middle" fill="#f59e0b" font-size="9">LOW | MED | HIGH | CRIT</text>
+
+  <!-- Branch: LOW (auto) -->
+  <path d="M555 95 L620 95" stroke="#10b981" stroke-width="1.5" marker-end="url(#a3g)"/>
+  <text x="587" y="88" text-anchor="middle" fill="#10b981" font-size="8">LOW</text>
+
+  <!-- Branch: MED+ (HITL) -->
+  <path d="M480 135 L480 175" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a3)"/>
+  <text x="496" y="158" fill="#f59e0b" font-size="8">MED+</text>
+
+  <!-- HITL gate -->
+  <!-- Diamond shape for decision -->
+  <polygon points="480,180 530,210 480,240 430,210" fill="#f59e0b" fill-opacity="0.12" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="480" y="214" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="700">HITL</text>
+
+  <!-- HITL -> Approved -->
+  <path d="M530 210 L620 210" stroke="#10b981" stroke-width="1.5" marker-end="url(#a3g)"/>
+  <text x="575" y="203" text-anchor="middle" fill="#10b981" font-size="8">approved</text>
+
+  <!-- HITL -> Rejected -->
+  <path d="M430 210 L360 210" stroke="#ef4444" stroke-width="1.5" marker-end="url(#a3r)"/>
+  <text x="395" y="203" text-anchor="middle" fill="#ef4444" font-size="8">rejected</text>
+
+  <!-- Rejected joins denied -->
+  <path d="M350 210 L350 195" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 2" marker-end="url(#a3r)"/>
+
+  <!-- Step 4: Execute in Sandbox -->
+  <rect x="625" y="75" width="130" height="55" rx="10" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="1.5"/>
+  <text x="690" y="98" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="700">Execute</text>
+  <text x="690" y="115" text-anchor="middle" fill="#10b981" font-size="9">in sandbox</text>
+
+  <!-- Execute from HITL approved -->
+  <path d="M625 210 L625 130 L625 130" stroke="#10b981" stroke-width="1" stroke-dasharray="4 2"/>
+
+  <!-- Arrow: Execute -> Result -->
+  <path d="M690 130 L690 175" stroke="#475569" stroke-width="1.5" marker-end="url(#a3)"/>
+
+  <rect x="625" y="180" width="130" height="45" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="690" y="200" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="600">Result</text>
+  <text x="690" y="216" text-anchor="middle" fill="#64748b" font-size="9">stdout, exit_code</text>
+
+  <!-- Result -> Audit -->
+  <path d="M625 202 L400 270" stroke="#475569" stroke-width="1" stroke-dasharray="4 2"/>
+
+  <!-- Bottom: Permission Levels legend -->
+  <g transform="translate(30, 310)">
+    <text x="0" y="12" fill="#94a3b8" font-size="10" font-weight="700">Permission Levels</text>
+    <g transform="translate(0, 22)">
+      <rect x="0" y="0" width="80" height="24" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="40" y="16" text-anchor="middle" fill="#64748b" font-size="9">NONE</text>
+      <rect x="90" y="0" width="80" height="24" rx="4" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-width="1"/>
+      <text x="130" y="16" text-anchor="middle" fill="#10b981" font-size="9">READ</text>
+      <rect x="180" y="0" width="80" height="24" rx="4" fill="#06b6d4" fill-opacity="0.1" stroke="#06b6d4" stroke-width="1"/>
+      <text x="220" y="16" text-anchor="middle" fill="#06b6d4" font-size="9">WRITE</text>
+      <rect x="270" y="0" width="80" height="24" rx="4" fill="#f59e0b" fill-opacity="0.1" stroke="#f59e0b" stroke-width="1"/>
+      <text x="310" y="16" text-anchor="middle" fill="#f59e0b" font-size="9">EXECUTE</text>
+      <rect x="360" y="0" width="80" height="24" rx="4" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-width="1"/>
+      <text x="400" y="16" text-anchor="middle" fill="#ef4444" font-size="9">ADMIN</text>
+    </g>
+  </g>
+
+  <!-- Resource Types -->
+  <g transform="translate(30, 370)">
+    <text x="0" y="12" fill="#94a3b8" font-size="10" font-weight="700">Resource Types</text>
+    <g transform="translate(0, 22)">
+      <rect x="0" y="0" width="95" height="22" rx="4" fill="#818cf8" fill-opacity="0.1"/>
+      <text x="47" y="15" text-anchor="middle" fill="#818cf8" font-size="9">filesystem</text>
+      <rect x="105" y="0" width="75" height="22" rx="4" fill="#818cf8" fill-opacity="0.1"/>
+      <text x="142" y="15" text-anchor="middle" fill="#818cf8" font-size="9">network</text>
+      <rect x="190" y="0" width="75" height="22" rx="4" fill="#818cf8" fill-opacity="0.1"/>
+      <text x="227" y="15" text-anchor="middle" fill="#818cf8" font-size="9">process</text>
+      <rect x="275" y="0" width="75" height="22" rx="4" fill="#818cf8" fill-opacity="0.1"/>
+      <text x="312" y="15" text-anchor="middle" fill="#818cf8" font-size="9">system</text>
+      <rect x="360" y="0" width="80" height="22" rx="4" fill="#818cf8" fill-opacity="0.1"/>
+      <text x="400" y="15" text-anchor="middle" fill="#818cf8" font-size="9">database</text>
+      <rect x="450" y="0" width="100" height="22" rx="4" fill="#818cf8" fill-opacity="0.1"/>
+      <text x="500" y="15" text-anchor="middle" fill="#818cf8" font-size="9">environment</text>
+    </g>
+  </g>
+</svg>

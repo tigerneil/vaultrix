@@ -1,0 +1,200 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vaultrix
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vaultrix
+  namespace: vaultrix
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vaultrix-role
+  namespace: vaultrix
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vaultrix-rolebinding
+  namespace: vaultrix
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: vaultrix-role
+subjects:
+  - kind: ServiceAccount
+    name: vaultrix
+    namespace: vaultrix
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vaultrix-config
+  namespace: vaultrix
+data:
+  VAULTRIX_ENV: "production"
+  VAULTRIX_LOG_LEVEL: "INFO"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaultrix
+  namespace: vaultrix
+  labels:
+    app: vaultrix
+    version: v0.1.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vaultrix
+  template:
+    metadata:
+      labels:
+        app: vaultrix
+        version: v0.1.0
+    spec:
+      serviceAccountName: vaultrix
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      containers:
+        - name: vaultrix
+          image: ghcr.io/yourusername/vaultrix:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          env:
+            - name: VAULTRIX_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: vaultrix-config
+                  key: VAULTRIX_ENV
+            - name: VAULTRIX_LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: vaultrix-config
+                  key: VAULTRIX_LOG_LEVEL
+            - name: PYTHONUNBUFFERED
+              value: "1"
+
+          resources:
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "from vaultrix import VaultrixAgent; print('healthy')"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+
+          readinessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "from vaultrix import VaultrixAgent; print('ready')"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: workspace
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaultrix
+  namespace: vaultrix
+  labels:
+    app: vaultrix
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: vaultrix
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: vaultrix-hpa
+  namespace: vaultrix
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vaultrix
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: vaultrix-pdb
+  namespace: vaultrix
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: vaultrix

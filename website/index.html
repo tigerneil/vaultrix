@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaultrix - Secure Autonomous AI Framework</title>
+<meta name="description" content="Vaultrix transforms autonomous AI agents into a secure, trustworthy ecosystem through strict sandboxing, audited skill registry, human-in-the-loop execution, and local layered encryption.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ───────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  overflow-x: hidden;
+  transition: background .3s, color .3s;
+}
+a { color: var(--accent); text-decoration: none; transition: color .2s; }
+a:hover { color: var(--accent-hover); }
+code, pre { font-family: 'JetBrains Mono', monospace; }
+img { max-width: 100%; }
+
+/* ── Theme variables: Dark (default) ───────────────────────── */
+:root {
+  --bg:              #050816;
+  --bg-alt:          rgba(15,23,42,.4);
+  --surface:         rgba(15,23,42,.6);
+  --surface-solid:   #0f172a;
+  --border:          rgba(255,255,255,.06);
+  --border-hover:    rgba(99,102,241,.3);
+  --text:            #c8d6e5;
+  --text-heading:    #f1f5f9;
+  --text-muted:      #94a3b8;
+  --text-faint:      #64748b;
+  --text-dim:        #475569;
+  --accent:          #818cf8;
+  --accent-hover:    #a5b4fc;
+  --nav-bg:          rgba(5,8,22,.85);
+  --badge-bg:        rgba(99,102,241,.12);
+  --badge-border:    rgba(99,102,241,.2);
+  --btn-secondary-bg:rgba(255,255,255,.06);
+  --btn-secondary-border:rgba(255,255,255,.1);
+  --btn-secondary-text:#e2e8f0;
+  --card-bg:         rgba(15,23,42,.6);
+  --code-bg:         rgba(0,0,0,.3);
+  --cta-bg:          linear-gradient(135deg, rgba(99,102,241,.1), rgba(6,182,212,.08));
+  --cta-border:      rgba(99,102,241,.2);
+  --demo-bg:         #0f172a;
+  --demo-titlebar:   rgba(0,0,0,.3);
+  --demo-tab-bg:     rgba(15,23,42,.4);
+  --terminal-white:  #e2e8f0;
+  --terminal-dim:    #475569;
+  --terminal-divider:#1e293b;
+  --glow1:           rgba(99,102,241,.08);
+  --glow2:           rgba(6,182,212,.06);
+  --diagram-filter:  none;
+}
+
+/* ── Theme variables: Light ────────────────────────────────── */
+[data-theme="light"] {
+  --bg:              #f8fafc;
+  --bg-alt:          #f1f5f9;
+  --surface:         #ffffff;
+  --surface-solid:   #ffffff;
+  --border:          #e2e8f0;
+  --border-hover:    rgba(99,102,241,.4);
+  --text:            #334155;
+  --text-heading:    #0f172a;
+  --text-muted:      #64748b;
+  --text-faint:      #94a3b8;
+  --text-dim:        #94a3b8;
+  --accent:          #6366f1;
+  --accent-hover:    #4f46e5;
+  --nav-bg:          rgba(248,250,252,.9);
+  --badge-bg:        rgba(99,102,241,.08);
+  --badge-border:    rgba(99,102,241,.2);
+  --btn-secondary-bg:#ffffff;
+  --btn-secondary-border:#e2e8f0;
+  --btn-secondary-text:#334155;
+  --card-bg:         #ffffff;
+  --code-bg:         #f1f5f9;
+  --cta-bg:          linear-gradient(135deg, rgba(99,102,241,.06), rgba(6,182,212,.04));
+  --cta-border:      rgba(99,102,241,.15);
+  --demo-bg:         #1e293b;
+  --demo-titlebar:   #0f172a;
+  --demo-tab-bg:     #e2e8f0;
+  --terminal-white:  #e2e8f0;
+  --terminal-dim:    #64748b;
+  --terminal-divider:#334155;
+  --glow1:           rgba(99,102,241,.04);
+  --glow2:           rgba(6,182,212,.03);
+  --diagram-filter:  invert(1) hue-rotate(180deg) brightness(1.15) contrast(.9);
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+section { padding: 100px 0; }
+
+/* ── Background effects ─────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; top: -200px; right: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, var(--glow1), transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; bottom: -200px; left: -200px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, var(--glow2), transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+section, header, footer { position: relative; z-index: 1; }
+
+/* ── Navigation ─────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  transition: background .3s, border-color .3s;
+}
+.nav-inner {
+  max-width: 1140px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.25rem; font-weight: 800; color: var(--text-heading);
+}
+.nav-logo .shield {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a {
+  color: var(--text-muted); font-size: .875rem; font-weight: 500;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text-heading); }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-cta {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: #fff !important; padding: 8px 20px;
+  border-radius: 8px; font-weight: 600; font-size: .875rem;
+  transition: opacity .2s;
+}
+.nav-cta:hover { opacity: .9; color: #fff !important; }
+
+/* ── Theme toggle ───────────────────────────────────────────── */
+.theme-toggle {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  transition: all .2s;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--badge-bg);
+}
+
+/* ── Hero ───────────────────────────────────────────────────── */
+.hero {
+  padding: 160px 0 100px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-block;
+  background: var(--badge-bg);
+  color: var(--accent);
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: .8rem; font-weight: 600;
+  margin-bottom: 24px;
+  border: 1px solid var(--badge-border);
+}
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  color: var(--text-heading);
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+.hero h1 .gradient {
+  background: linear-gradient(135deg, #818cf8, #06b6d4);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero p {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 640px;
+  margin: 0 auto 40px;
+}
+.hero-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-radius: 10px;
+  font-size: .95rem; font-weight: 600;
+  transition: all .2s; cursor: pointer; border: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: #fff;
+}
+.btn-primary:hover { opacity: .9; color: #fff; transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
+}
+.btn-secondary:hover { opacity: .85; }
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px;
+  margin-top: 60px; flex-wrap: wrap;
+}
+.hero-stat .num {
+  font-size: 2rem; font-weight: 800;
+  background: linear-gradient(135deg, #818cf8, #06b6d4);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero-stat .label { font-size: .8rem; color: var(--text-faint); margin-top: 4px; }
+
+/* ── Section headers ────────────────────────────────────────── */
+.section-label {
+  font-size: .75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--accent); margin-bottom: 12px;
+}
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800; color: var(--text-heading);
+  line-height: 1.2; margin-bottom: 16px;
+}
+.section-subtitle {
+  font-size: 1.05rem; color: var(--text-muted);
+  max-width: 600px; margin-bottom: 48px;
+}
+.text-center { text-align: center; }
+.text-center .section-subtitle { margin-left: auto; margin-right: auto; }
+
+/* ── Features grid ──────────────────────────────────────────── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+.feature-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  transition: border-color .3s, transform .3s, background .3s;
+}
+.feature-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+}
+.feature-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+.feature-card h3 {
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--text-heading); margin-bottom: 8px;
+}
+.feature-card p { font-size: .9rem; color: var(--text-muted); }
+
+/* ── Architecture ───────────────────────────────────────────── */
+.arch-layers {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.arch-layer {
+  flex: 1; min-width: 180px;
+  padding: 24px 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid var(--border);
+  transition: transform .3s;
+}
+.arch-layer:hover { transform: translateY(-4px); }
+.arch-layer .layer-num {
+  font-size: .7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  opacity: .7; margin-bottom: 8px;
+}
+.arch-layer h4 {
+  font-size: 1rem; font-weight: 700; margin-bottom: 4px;
+}
+.arch-layer p { font-size: .8rem; opacity: .8; }
+
+/* Diagrams: invert in light mode */
+.diagram-container img { transition: filter .3s; filter: var(--diagram-filter); }
+
+/* ── Demo Section ───────────────────────────────────────────── */
+.demo-tabs {
+  display: flex; gap: 4px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+.demo-tab {
+  padding: 10px 20px;
+  border-radius: 10px 10px 0 0;
+  font-size: .85rem; font-weight: 600;
+  cursor: pointer;
+  background: var(--demo-tab-bg);
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  transition: all .2s;
+}
+.demo-tab:hover { color: var(--text-muted); }
+.demo-tab.active {
+  background: var(--demo-bg);
+  color: #818cf8;
+  border-color: rgba(99,102,241,.3);
+}
+.demo-window {
+  background: var(--demo-bg);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 0 12px 12px 12px;
+  overflow: hidden;
+}
+.demo-titlebar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px;
+  background: var(--demo-titlebar);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.demo-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.demo-titlebar-title {
+  flex: 1; text-align: center;
+  font-size: .75rem; color: #475569;
+  font-family: 'JetBrains Mono', monospace;
+}
+.demo-content {
+  padding: 20px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .82rem;
+  line-height: 1.8;
+  min-height: 340px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.demo-panel { display: none; }
+.demo-panel.active { display: block; }
+
+/* Terminal styling — always dark palette inside terminal */
+.t-cyan    { color: #06b6d4; }
+.t-green   { color: #10b981; }
+.t-red     { color: #ef4444; }
+.t-yellow  { color: #eab308; }
+.t-purple  { color: #a78bfa; }
+.t-dim     { color: #64748b; }
+.t-white   { color: #e2e8f0; }
+.t-bold    { font-weight: 700; }
+.t-line    { display: block; min-height: 1.6em; }
+.t-indent  { display: block; padding-left: 2ch; }
+.t-indent2 { display: block; padding-left: 4ch; }
+.t-table   { display: block; padding-left: 2ch; }
+.t-header  { display: block; padding: 4px 0; color: #818cf8; font-weight: 600; }
+.t-divider { display: block; color: #334155; }
+.t-prompt  { color: #818cf8; font-weight: 600; }
+.t-ok      { color: #10b981; font-weight: 600; }
+.t-fail    { color: #ef4444; font-weight: 600; }
+.t-step    { color: #10b981; }
+
+/* ── How it works ───────────────────────────────────────────── */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px; counter-reset: step;
+}
+.step-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  position: relative;
+  counter-increment: step;
+  transition: background .3s, border-color .3s;
+}
+.step-card::before {
+  content: counter(step);
+  position: absolute; top: -14px; left: 24px;
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 800; color: #fff;
+  line-height: 28px; text-align: center;
+}
+.step-card h4 {
+  font-size: 1rem; font-weight: 700;
+  color: var(--text-heading); margin-bottom: 8px; margin-top: 4px;
+}
+.step-card p { font-size: .85rem; color: var(--text-muted); }
+.step-card code {
+  display: block;
+  background: var(--code-bg);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: .8rem;
+  color: #06b6d4;
+  margin-top: 12px;
+}
+
+/* ── CTA ────────────────────────────────────────────────────── */
+.cta-section {
+  text-align: center;
+  padding: 80px 0 100px;
+}
+.cta-box {
+  background: var(--cta-bg);
+  border: 1px solid var(--cta-border);
+  border-radius: 24px;
+  padding: 60px 40px;
+  transition: background .3s, border-color .3s;
+}
+.cta-box h2 {
+  font-size: 2rem; font-weight: 800;
+  color: var(--text-heading); margin-bottom: 16px;
+}
+.cta-box p {
+  font-size: 1.05rem; color: var(--text-muted);
+  max-width: 500px; margin: 0 auto 32px;
+}
+.cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ── Footer ─────────────────────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 0;
+  transition: border-color .3s;
+}
+.footer-inner {
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 16px;
+}
+.footer-brand { font-weight: 700; color: var(--text-faint); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { color: var(--text-dim); font-size: .85rem; }
+.footer-links a:hover { color: var(--text-muted); }
+
+/* ── Alt-bg sections ────────────────────────────────────────── */
+.section-alt { background: var(--bg-alt); transition: background .3s; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero-stats { gap: 24px; }
+  .arch-layers { flex-direction: column; }
+  section { padding: 60px 0; }
+  .demo-content { font-size: .72rem; }
+  .cta-box { padding: 40px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ──────────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="shield">&#x1F512;</span>
+      Vaultrix
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#multi-agent">Multi-Agent</a></li>
+      <li><a href="#demo">Live Demo</a></li>
+      <li><a href="#quickstart">Quick Start</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" id="themeToggle">&#x1F319;</button>
+      <a href="https://github.com/vaultrixai/vaultrix" class="nav-cta">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Open Source &middot; Alpha v0.1.0</div>
+    <h1>Autonomous AI,<br><span class="gradient">Safely Unleashed</span></h1>
+    <p>Vaultrix is a secure execution framework for AI agents. Five defence layers &mdash; sandboxing, permissions, human-in-the-loop, encryption, and audited skills &mdash; so agents can act autonomously without acting dangerously.</p>
+    <div class="hero-actions">
+      <a href="#demo" class="btn btn-primary">See It in Action &darr;</a>
+      <a href="#quickstart" class="btn btn-secondary">Quick Start</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">5</div><div class="label">Security Layers</div></div>
+      <div class="hero-stat"><div class="num">6</div><div class="label">Resource Types</div></div>
+      <div class="hero-stat"><div class="num">0</div><div class="label">Dependencies on Docker*</div></div>
+      <div class="hero-stat"><div class="num">100%</div><div class="label">Local &amp; Private</div></div>
+    </div>
+    <p style="font-size:.75rem;color:#475569;margin-top:12px;">* Docker enhances isolation but is optional &mdash; local sandbox works out of the box.</p>
+  </div>
+</section>
+
+<!-- ── Features ─────────────────────────────────────────────── -->
+<section id="features">
+  <div class="container text-center">
+    <div class="section-label">Core Features</div>
+    <h2 class="section-title">Defence in Depth for AI Agents</h2>
+    <p class="section-subtitle">Every layer independently prevents a class of failure. Combined, they make autonomous agents safe to deploy.</p>
+  </div>
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(99,102,241,.12);color:#818cf8;">&#x1F4E6;</div>
+        <h3>Strict Sandboxing</h3>
+        <p>Agents run in isolated containers with CPU/memory quotas, read-only root filesystem, dropped capabilities, and path-traversal protection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(6,182,212,.12);color:#06b6d4;">&#x1F6E1;</div>
+        <h3>Granular Permissions</h3>
+        <p>Five permission levels across six resource types. Path-aware, rate-limited, temporally scoped. Deny by default.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(245,158,11,.12);color:#f59e0b;">&#x270B;</div>
+        <h3>Human-in-the-Loop</h3>
+        <p>High-risk actions pause for human approval. Risk classification is automatic &mdash; LOW auto-executes, MEDIUM logs, HIGH/CRITICAL require confirmation.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(16,185,129,.12);color:#10b981;">&#x1F510;</div>
+        <h3>Encrypted at Rest</h3>
+        <p>All agent data, memory, and logs encrypted with Fernet (AES-128-CBC + HMAC). Keys stored locally with 0600 permissions. Zero-knowledge architecture.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(239,68,68,.12);color:#ef4444;">&#x1F50D;</div>
+        <h3>Skill Scanner (VaultHub)</h3>
+        <p>AST-based static analysis blocks dangerous imports, eval/exec, subprocess calls, and network access before skills are approved.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(168,85,247,.12);color:#a78bfa;">&#x1F527;</div>
+        <h3>Tool Permission Gating</h3>
+        <p>Every tool declares required permissions. The agent loop checks access before invocation. Denied tools return clear errors, never silently fail.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Architecture ─────────────────────────────────────────── -->
+<section id="architecture" class="section-alt">
+  <div class="container text-center">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">Five Layers of Defence</h2>
+    <p class="section-subtitle">Each layer is independent. Compromise one, the others still hold.</p>
+  </div>
+  <div class="container">
+    <div class="arch-layers">
+      <div class="arch-layer" style="background:rgba(99,102,241,.08);color:#a5b4fc;">
+        <div class="layer-num">Layer 1</div>
+        <h4>Input Validation</h4>
+        <p>Sanitise &amp; classify</p>
+      </div>
+      <div class="arch-layer" style="background:rgba(6,182,212,.08);color:#67e8f9;">
+        <div class="layer-num">Layer 2</div>
+        <h4>Permissions</h4>
+        <p>Granular access control</p>
+      </div>
+      <div class="arch-layer" style="background:rgba(245,158,11,.08);color:#fcd34d;">
+        <div class="layer-num">Layer 3</div>
+        <h4>Human Approval</h4>
+        <p>HITL for risky actions</p>
+      </div>
+      <div class="arch-layer" style="background:rgba(16,185,129,.08);color:#6ee7b7;">
+        <div class="layer-num">Layer 4</div>
+        <h4>Sandbox</h4>
+        <p>Container isolation</p>
+      </div>
+      <div class="arch-layer" style="background:rgba(239,68,68,.08);color:#fca5a5;">
+        <div class="layer-num">Layer 5</div>
+        <h4>Encryption</h4>
+        <p>Data protection</p>
+      </div>
+    </div>
+  </div>
+  <div class="container" style="margin-top:48px;">
+    <div class="diagram-tabs" style="display:flex;gap:4px;margin-bottom:0;">
+      <div class="diagram-tab active" onclick="showDiagram('arch')" style="padding:10px 20px;border-radius:10px 10px 0 0;font-size:.85rem;font-weight:600;cursor:pointer;background:#0f172a;color:#818cf8;border:1px solid rgba(99,102,241,.3);border-bottom:none;">System Architecture</div>
+      <div class="diagram-tab" onclick="showDiagram('perm')" style="padding:10px 20px;border-radius:10px 10px 0 0;font-size:.85rem;font-weight:600;cursor:pointer;background:rgba(15,23,42,.4);color:#64748b;border:1px solid rgba(255,255,255,.06);border-bottom:none;">Permission Flow</div>
+    </div>
+    <div style="background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:0 12px 12px 12px;padding:24px;overflow-x:auto;">
+      <div id="diagram-arch" class="diagram-container"><img src="diagrams/architecture.svg" alt="Vaultrix System Architecture" style="width:100%;max-width:900px;display:block;margin:0 auto;"/></div>
+      <div id="diagram-perm" class="diagram-container" style="display:none;"><img src="diagrams/permission-flow.svg" alt="Permission & Execution Flow" style="width:100%;max-width:780px;display:block;margin:0 auto;"/></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Multi-Agent Security ────────────────────────────────── -->
+<section id="multi-agent">
+  <div class="container text-center">
+    <div class="section-label">Multi-Agent Security</div>
+    <h2 class="section-title">Secure Agent Orchestration</h2>
+    <p class="section-subtitle">Multiple agents, each isolated, communicating through encrypted channels with trust-based access control.</p>
+  </div>
+  <div class="container">
+    <div style="background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:24px;margin-bottom:48px;overflow-x:auto;">
+      <img class="diagram-container" src="diagrams/multi-agent.svg" alt="Multi-Agent Security Architecture" style="width:100%;max-width:900px;display:block;margin:0 auto;"/>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(99,102,241,.12);color:#818cf8;">&#x1F3AD;</div>
+        <h3>Agent Orchestrator</h3>
+        <p>Manages the lifecycle of multiple agents. Each gets its own sandbox, permissions, and role. Enforces fleet-wide limits.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(245,158,11,.12);color:#f59e0b;">&#x1F4E8;</div>
+        <h3>Secure Channel</h3>
+        <p>All inter-agent messages are encrypted, policy-checked, rate-limited, and recorded in an immutable audit trail. No direct communication.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(16,185,129,.12);color:#10b981;">&#x1F91D;</div>
+        <h3>Trust Matrix</h3>
+        <p>Configurable trust levels between agents: UNTRUSTED, RESTRICTED, STANDARD, TRUSTED, FULL. Controls who can talk to whom and share what.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(239,68,68,.12);color:#ef4444;">&#x1F6AB;</div>
+        <h3>Policy Enforcement</h3>
+        <p>Rate limits (global + per-agent), message size caps, type restrictions, and mandatory encryption. Violations are blocked and logged.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(6,182,212,.12);color:#06b6d4;">&#x1F4CB;</div>
+        <h3>Task Delegation</h3>
+        <p>A lead agent can delegate subtasks to specialist agents. Results flow back through the secure channel. Full traceability.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(168,85,247,.12);color:#a78bfa;">&#x1F512;</div>
+        <h3>Sandbox Isolation</h3>
+        <p>Each agent runs in its own sandbox with its own filesystem. No shared state by default. Resource sharing requires explicit trust rules.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Live Demo ────────────────────────────────────────────── -->
+<section id="demo">
+  <div class="container">
+    <div class="text-center">
+      <div class="section-label">Live Demo Output</div>
+      <h2 class="section-title">See Vaultrix in Action</h2>
+      <p class="section-subtitle">Real output from <code>python examples/cli_demo.py</code> &mdash; no mocks, no fakes.</p>
+    </div>
+
+    <div class="demo-tabs">
+      <div class="demo-tab active" onclick="showDemo('sandbox')">Sandbox</div>
+      <div class="demo-tab" onclick="showDemo('permissions')">Permissions</div>
+      <div class="demo-tab" onclick="showDemo('hitl')">HITL</div>
+      <div class="demo-tab" onclick="showDemo('encryption')">Encryption</div>
+      <div class="demo-tab" onclick="showDemo('scanner')">Skill Scanner</div>
+      <div class="demo-tab" onclick="showDemo('tools')">Tool Gating</div>
+      <div class="demo-tab" onclick="showDemo('multiagent')">Multi-Agent</div>
+    </div>
+
+    <div class="demo-window">
+      <div class="demo-titlebar">
+        <div class="demo-dot" style="background:#ef4444;"></div>
+        <div class="demo-dot" style="background:#eab308;"></div>
+        <div class="demo-dot" style="background:#10b981;"></div>
+        <div class="demo-titlebar-title">vaultrix &mdash; cli_demo.py</div>
+      </div>
+
+      <!-- Panel 1: Sandbox -->
+      <div class="demo-content demo-panel active" id="demo-sandbox">
+<span class="t-header">1 / 6  Sandbox Isolation</span>
+<span class="t-dim t-line">Create an isolated workspace, run commands, and verify containment.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Creating local sandbox ...</span>
+<span class="t-line"><span class="t-ok">OK</span> Sandbox created  id=d37313f64719  backend=LocalBackend</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Executing command: <span class="t-white">echo 'Hello from the vault!'</span></span>
+<span class="t-indent">stdout: <span class="t-cyan">Hello from the vault!</span></span>
+<span class="t-indent">exit_code: <span class="t-green">0</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Writing file /workspace/secret.txt ...</span>
+<span class="t-line"><span class="t-ok">OK</span> File written.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Reading file back ...</span>
+<span class="t-indent">Content: <span class="t-white">Top-secret agent data</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Attempting path traversal: <span class="t-red">/workspace/../../etc/passwd</span></span>
+<span class="t-line"><span class="t-ok">OK</span> <span class="t-green">Blocked!</span> Path escapes sandbox: workspace/../../etc/passwd</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-ok">OK</span> Sandbox destroyed. Temp files cleaned up.</span>
+      </div>
+
+      <!-- Panel 2: Permissions -->
+      <div class="demo-content demo-panel" id="demo-permissions">
+<span class="t-header">2 / 6  Permission System</span>
+<span class="t-dim t-line">Granular, path-aware permissions with rate limiting and expiry.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Permission preset: <span class="t-bold t-white">default_sandbox</span></span>
+<span class="t-line"></span>
+<span class="t-table">  Action                          Result     Risk</span>
+<span class="t-divider">  -----------------------------------------------</span>
+<span class="t-table">  Read /workspace/data.csv        <span class="t-green">ALLOW</span>      MEDIUM</span>
+<span class="t-table">  Write /workspace/out.txt        <span class="t-green">ALLOW</span>      MEDIUM</span>
+<span class="t-table">  Network execute                 <span class="t-red">DENY</span>       HIGH</span>
+<span class="t-table">  Process execute                 <span class="t-red">DENY</span>       CRITICAL</span>
+<span class="t-table">  System read                     <span class="t-green">ALLOW</span>      LOW</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Permission preset: <span class="t-bold t-white">restricted</span></span>
+<span class="t-line"></span>
+<span class="t-table">  Read /workspace/data.csv        <span class="t-red">DENY</span>       LOW</span>
+<span class="t-table">  Write /workspace/out.txt        <span class="t-red">DENY</span>       LOW</span>
+<span class="t-table">  Network execute                 <span class="t-red">DENY</span>       CRITICAL</span>
+<span class="t-table">  Process execute                 <span class="t-red">DENY</span>       CRITICAL</span>
+<span class="t-table">  System read                     <span class="t-red">DENY</span>       CRITICAL</span>
+<span class="t-line"></span>
+<span class="t-dim t-line">Three presets: default_sandbox, developer, restricted</span>
+      </div>
+
+      <!-- Panel 3: HITL -->
+      <div class="demo-content demo-panel" id="demo-hitl">
+<span class="t-header">3 / 6  Human-in-the-Loop (HITL)</span>
+<span class="t-dim t-line">High-risk actions pause and request human approval before executing.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Simulating agent action queue ...</span>
+<span class="t-line"></span>
+<span class="t-indent"><span class="t-green">LOW     </span>  Read workspace file</span>
+<span class="t-indent2"><span class="t-dim">Auto-approved (low risk)</span></span>
+<span class="t-line"></span>
+<span class="t-indent"><span class="t-yellow">MEDIUM  </span>  Write output file</span>
+<span class="t-indent2"><span class="t-yellow t-bold">HITL</span> Approve this action? [y/n]: <span class="t-green">y</span></span>
+<span class="t-indent2"><span class="t-ok">OK</span> Action approved by human operator.</span>
+<span class="t-line"></span>
+<span class="t-indent"><span class="t-red">HIGH    </span>  Open network connection</span>
+<span class="t-indent2"><span class="t-yellow t-bold">HITL</span> Approve this action? [y/n]: <span class="t-red">n</span></span>
+<span class="t-indent2"><span class="t-fail">x</span> Action REJECTED by human operator. Skipped.</span>
+<span class="t-line"></span>
+<span class="t-indent"><span class="t-red t-bold">CRITICAL</span>  Delete system file (admin)</span>
+<span class="t-indent2"><span class="t-yellow t-bold">HITL</span> Approve this action? [y/n]: <span class="t-red">n</span></span>
+<span class="t-indent2"><span class="t-fail">x</span> Action REJECTED by human operator. Skipped.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-ok">OK</span> HITL demo complete. High-risk actions were gated on human approval.</span>
+      </div>
+
+      <!-- Panel 4: Encryption -->
+      <div class="demo-content demo-panel" id="demo-encryption">
+<span class="t-header">4 / 6  Local Layered Encryption</span>
+<span class="t-dim t-line">Agent data encrypted at rest using Fernet (AES-128-CBC + HMAC).</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Plaintext (52 bytes):</span>
+<span class="t-indent t-white">Agent memory: user prefers dark mode, timezone=UTC+8</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Ciphertext (164 bytes):</span>
+<span class="t-indent t-dim">gAAAAABptPauBRytOM9NHfjIoM3-iRtyXCqD0_5V9PGG...</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-ok">OK</span> Decrypted: <span class="t-cyan">Agent memory: user prefers dark mode, timezone=UTC+8</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Encrypting structured JSON ...</span>
+<span class="t-indent">Token length: <span class="t-white">248 bytes</span></span>
+<span class="t-line"><span class="t-ok">OK</span> Recovered JSON keys: <span class="t-cyan">['agent_id', 'goals_completed', 'secrets']</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Saving encrypted file ...</span>
+<span class="t-indent">Encrypted file size: <span class="t-white">164 bytes</span></span>
+<span class="t-line"><span class="t-ok">OK</span> Loaded &amp; decrypted successfully.</span>
+      </div>
+
+      <!-- Panel 5: Scanner -->
+      <div class="demo-content demo-panel" id="demo-scanner">
+<span class="t-header">5 / 6  VaultHub Skill Scanner</span>
+<span class="t-dim t-line">Static analysis detects dangerous patterns before skills are approved.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Scanning <span class="t-green">safe skill</span> (pure math) ...</span>
+<span class="t-line"><span class="t-ok">OK</span> 'safe-math' <span class="t-green t-bold">PASSED</span>  (0 findings)</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Scanning <span class="t-red t-bold">malicious skill</span> ...</span>
+<span class="t-line"></span>
+<span class="t-table">  Severity     Line   Finding</span>
+<span class="t-divider">  ---------------------------------------------------</span>
+<span class="t-table">  <span class="t-red">CRITICAL</span>       2     Import of dangerous module: os</span>
+<span class="t-table">  <span class="t-red">CRITICAL</span>       3     Import of dangerous module: subprocess</span>
+<span class="t-table">  <span class="t-red">CRITICAL</span>       4     Import of dangerous module: socket</span>
+<span class="t-table">  <span class="t-red">CRITICAL</span>       7     Use of dangerous call: os.system()</span>
+<span class="t-table">  <span class="t-yellow">WARNING</span>        7     Reference to dangerous attribute: os.system</span>
+<span class="t-table">  <span class="t-red">CRITICAL</span>       8     Use of dangerous builtin: eval()</span>
+<span class="t-line"></span>
+<span class="t-line">  Verdict: <span class="t-red t-bold">REJECTED</span></span>
+<span class="t-dim t-line">  This skill would be blocked from VaultHub.</span>
+      </div>
+
+      <!-- Panel 6: Tools -->
+      <div class="demo-content demo-panel" id="demo-tools">
+<span class="t-header">6 / 6  Agent Tool Execution</span>
+<span class="t-dim t-line">Tools are permission-gated. Allowed tools succeed; denied tools are blocked.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Registered tools:</span>
+<span class="t-indent"><span class="t-cyan">shell               </span> perms=(process:execute)</span>
+<span class="t-indent"><span class="t-cyan">file_read           </span> perms=(filesystem:read)</span>
+<span class="t-indent"><span class="t-cyan">file_write          </span> perms=(filesystem:write)</span>
+<span class="t-indent"><span class="t-cyan">check_permission    </span> perms=(none)</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Check if filesystem read is allowed</span>
+<span class="t-line"><span class="t-ok">OK</span> Output: filesystem:read &rarr; <span class="t-green">ALLOWED</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Write a file (filesystem:write - allowed)</span>
+<span class="t-line"><span class="t-ok">OK</span> Output: Wrote 26 bytes to workspace/hello.txt</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Read the file back (filesystem:read - allowed)</span>
+<span class="t-line"><span class="t-ok">OK</span> Output: <span class="t-cyan">Hello from Vaultrix agent!</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Run shell command (process:execute - <span class="t-red">DENIED</span> by default)</span>
+<span class="t-line"><span class="t-fail">x</span> Permission denied: process:execute</span>
+<span class="t-line"></span>
+<span class="t-dim t-line">Default sandbox blocks process execution. Switch to "developer" preset to allow it.</span>
+      </div>
+
+      <!-- Panel 7: Multi-Agent -->
+      <div class="demo-content demo-panel" id="demo-multiagent">
+<span class="t-header">Multi-Agent Secure Orchestration</span>
+<span class="t-dim t-line">Isolated agents communicate through encrypted, policy-checked channels.</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Spawning agents with isolated sandboxes ...</span>
+<span class="t-line"><span class="t-ok">OK</span> Agent <span class="t-cyan">researcher</span> (role=data, sandbox=running)</span>
+<span class="t-line"><span class="t-ok">OK</span> Agent <span class="t-purple">coder</span> (role=code, sandbox=running)</span>
+<span class="t-line"><span class="t-ok">OK</span> Agent <span class="t-yellow">reviewer</span> (role=review, sandbox=running)</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Trust matrix:</span>
+<span class="t-line"></span>
+<span class="t-table">               lead    worker-1   worker-2   worker-3</span>
+<span class="t-divider">  ──────────────────────────────────────────────────────</span>
+<span class="t-table">  lead         <span class="t-dim">self</span>    <span class="t-green">trusted</span>    <span class="t-green">trusted</span>    <span class="t-green">trusted</span></span>
+<span class="t-table">  worker-1     <span class="t-cyan">std</span>     <span class="t-dim">self</span>       <span class="t-yellow">restricted</span> <span class="t-red">untrusted</span></span>
+<span class="t-table">  worker-2     <span class="t-cyan">std</span>     <span class="t-yellow">restricted</span> <span class="t-dim">self</span>       <span class="t-red">untrusted</span></span>
+<span class="t-table">  worker-3     <span class="t-cyan">std</span>     <span class="t-red">untrusted</span>  <span class="t-red">untrusted</span>  <span class="t-dim">self</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> lead &rarr; worker-1 (trusted): send encrypted request</span>
+<span class="t-line"><span class="t-ok">OK</span> Delivered (encrypted=True)</span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> worker-1 &rarr; worker-3 (untrusted): send request</span>
+<span class="t-line"><span class="t-fail">x</span> <span class="t-red">Blocked: Communication denied (trust=untrusted)</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Rate limit test (3/min per agent):</span>
+<span class="t-indent">Message 1: <span class="t-green">delivered</span></span>
+<span class="t-indent">Message 2: <span class="t-green">delivered</span></span>
+<span class="t-indent">Message 3: <span class="t-green">delivered</span></span>
+<span class="t-indent">Message 4: <span class="t-red">blocked - Rate limit exceeded</span></span>
+<span class="t-line"></span>
+<span class="t-line"><span class="t-step">&gt;</span> Task delegation: lead &rarr; data-agent &rarr; result</span>
+<span class="t-line"><span class="t-ok">OK</span> Received 2 results from specialist agents</span>
+<span class="t-dim t-line">Full audit trail maintained for all inter-agent communication.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Quick Start ──────────────────────────────────────────── -->
+<section id="quickstart" class="section-alt">
+  <div class="container text-center">
+    <div class="section-label">Quick Start</div>
+    <h2 class="section-title">Up and Running in 60 Seconds</h2>
+    <p class="section-subtitle">No Docker required. Works on macOS, Linux, and WSL.</p>
+  </div>
+  <div class="container">
+    <div class="steps-grid">
+      <div class="step-card">
+        <h4>Clone &amp; install</h4>
+        <p>Grab the repo and install into a virtualenv.</p>
+        <code>git clone https://github.com/vaultrixai/vaultrix.git<br>cd vaultrix<br>pip install -e .</code>
+      </div>
+      <div class="step-card">
+        <h4>Run the demo</h4>
+        <p>Walk through all 6 security features interactively.</p>
+        <code>python examples/cli_demo.py</code>
+      </div>
+      <div class="step-card">
+        <h4>Start the CLI</h4>
+        <p>Launch the agent in interactive sandbox mode.</p>
+        <code>vaultrix start --interactive</code>
+      </div>
+      <div class="step-card">
+        <h4>Scan a skill</h4>
+        <p>Run the security scanner on any Python skill directory.</p>
+        <code>vaultrix skill init my-skill<br>vaultrix skill check my-skill</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ──────────────────────────────────────────────────── -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Ready to Build Safer AI Agents?</h2>
+      <p>Vaultrix is open source and looking for contributors: security researchers, LLM/agent engineers, and cryptography engineers.</p>
+      <div class="cta-actions">
+        <a href="https://github.com/vaultrixai/vaultrix" class="btn btn-primary">Star on GitHub</a>
+        <a href="https://github.com/vaultrixai/vaultrix/issues" class="btn btn-secondary">View Open Issues</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer>
+  <div class="container footer-inner">
+    <div class="footer-brand">Vaultrix &copy; 2026 &mdash; MIT License</div>
+    <div class="footer-links">
+      <a href="https://github.com/vaultrixai/vaultrix">GitHub</a>
+      <a href="#features">Features</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#multi-agent">Multi-Agent</a>
+      <a href="#demo">Demo</a>
+      <a href="#quickstart">Quick Start</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Script ──────────────────────────────────────────────── -->
+<script>
+/* Demo tabs */
+function showDemo(id) {
+  document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('demo-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* Diagram tabs */
+function showDiagram(id) {
+  var tabs = document.querySelectorAll('.diagram-tab');
+  var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  tabs.forEach(function(t) {
+    t.style.background = isLight ? '#e2e8f0' : 'rgba(15,23,42,.4)';
+    t.style.color = isLight ? '#94a3b8' : '#64748b';
+    t.style.borderColor = isLight ? '#e2e8f0' : 'rgba(255,255,255,.06)';
+  });
+  var active = isLight ? '#ffffff' : '#0f172a';
+  event.currentTarget.style.background = active;
+  event.currentTarget.style.color = '#818cf8';
+  event.currentTarget.style.borderColor = 'rgba(99,102,241,.3)';
+  document.getElementById('diagram-arch').style.display = id === 'arch' ? 'block' : 'none';
+  document.getElementById('diagram-perm').style.display = id === 'perm' ? 'block' : 'none';
+}
+
+/* Theme toggle */
+function toggleTheme() {
+  var html = document.documentElement;
+  var current = html.getAttribute('data-theme');
+  var next = current === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('vaultrix-theme', next);
+  document.getElementById('themeToggle').textContent = next === 'light' ? '\u2600\uFE0F' : '\uD83C\uDF19';
+}
+
+/* Restore saved theme on load */
+(function() {
+  var saved = localStorage.getItem('vaultrix-theme');
+  if (!saved) {
+    saved = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+  if (saved === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('themeToggle').textContent = '\u2600\uFE0F';
+  }
+})();
+</script>
+
+</body>
+</html>

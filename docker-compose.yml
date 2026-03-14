@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  vaultrix:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vaultrix:latest
+    container_name: vaultrix-app
+    restart: unless-stopped
+
+    # NOTE: Docker socket mount removed for security.
+    # Use rootless Docker or a filtered proxy if Docker-in-Docker is needed.
+    volumes:
+      - vaultrix-data:/home/vaultrix/.vaultrix
+      - ./workspace:/workspace
+
+    # Environment variables
+    environment:
+      - VAULTRIX_ENV=production
+      - VAULTRIX_LOG_LEVEL=INFO
+      - PYTHONUNBUFFERED=1
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Networks
+    networks:
+      - vaultrix-network
+
+  # Optional: Monitoring with Prometheus (future)
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: vaultrix-prometheus
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - vaultrix-network
+
+volumes:
+  vaultrix-data:
+    driver: local
+  # prometheus-data:
+  #   driver: local
+
+networks:
+  vaultrix-network:
+    driver: bridge

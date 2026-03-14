@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vaultrix · Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <style>
+    .chat{max-width:800px;margin:22px auto;display:flex;flex-direction:column;gap:14px;padding:0 18px}
+    .msg{padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+    .msg.user{background:#1a2d50;align-self:flex-end;max-width:70%;border:1px solid #263f6a}
+    .msg.assistant{background:var(--panel);border:1px solid var(--border);max-width:85%}
+    .msg.tool{background:#0c1a26;border:1px solid #162030;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;max-width:85%}
+    .msg .label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px}
+    .input-row{display:flex;gap:10px;max-width:800px;margin:0 auto;padding:0 18px 20px}
+    .input-row input{flex:1}
+    .input-row button{width:auto;padding:11px 28px}
+    #spinner{display:none;text-align:center;color:var(--muted);padding:10px}
+  </style>
+</head>
+<body>
+  <div class="bg-gradient" aria-hidden="true"></div>
+  <header class="site">
+    <div class="nav">
+      <div class="brand"><span class="dot"></span><span class="name">Vaultrix</span></div>
+      <a href="/" style="color:var(--muted);text-decoration:none;font-size:13px">← Dashboard</a>
+      <div class="meta">Agent loop</div>
+    </div>
+  </header>
+
+  <div class="chat" id="chat"></div>
+  <div id="spinner">Running agent…</div>
+  <div class="input-row">
+    <input id="goal" placeholder="Enter a goal for the agent…" />
+    <button class="primary" id="run">Run</button>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  <script>
+    const chat = document.getElementById('chat');
+    const goalInput = document.getElementById('goal');
+    const runBtn = document.getElementById('run');
+    const spinner = document.getElementById('spinner');
+
+    function addMsg(role, text, toolName) {
+      const el = document.createElement('div');
+      el.className = `msg ${role}`;
+      let label = role;
+      if (toolName) label = `tool: ${toolName}`;
+      el.innerHTML = `<div class="label">${label}</div>${escapeHtml(text)}`;
+      chat.appendChild(el);
+      el.scrollIntoView({behavior: 'smooth'});
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    async function run() {
+      const goal = goalInput.value.trim();
+      if (!goal) return;
+      addMsg('user', goal);
+      goalInput.value = '';
+      spinner.style.display = 'block';
+      runBtn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/agent/run', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({goal}),
+        });
+        const data = await resp.json();
+        if (data.steps) {
+          for (const s of data.steps) {
+            if (s.role === 'tool') {
+              addMsg('tool', s.tool_result || '', s.tool_name);
+            } else {
+              addMsg('assistant', s.content);
+            }
+          }
+        } else if (data.error) {
+          addMsg('assistant', `Error: ${data.error}`);
+        }
+      } catch (e) {
+        addMsg('assistant', `Network error: ${e.message}`);
+      } finally {
+        spinner.style.display = 'none';
+        runBtn.disabled = false;
+      }
+    }
+
+    runBtn.addEventListener('click', run);
+    goalInput.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vaultrix · Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <div class="bg-gradient" aria-hidden="true"></div>
+  <header class="site">
+    <div class="nav">
+      <div class="brand"><span class="dot"></span><span class="name">Vaultrix</span></div>
+      <div class="meta">Local demo · No Docker required</div>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="card">
+      <div class="head">Status</div>
+      <div class="body">
+        <div style="font-size:13px; line-height:1.5">
+          <div><strong>Permission set:</strong> <code>{{ current_set }}</code></div>
+          <div><strong>Total attempts:</strong> {{ data.summary.total_access_attempts }}</div>
+          <div><strong>Denied:</strong> {{ data.summary.denied_attempts }}</div>
+          <div><strong>Approval required (by resource):</strong>
+            {% for r in data.summary.approval_required_resources %}
+              <span class="badge hi">{{ r }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <form method="post" action="/set-permission-set">
+            <label for="permission_set">Switch permission set</label>
+            <select id="permission_set" name="permission_set">
+              {% for s in sets %}
+                <option value="{{ s }}" {% if s == current_set %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+            <div style="height:10px"></div>
+            <button class="primary" type="submit">Apply</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">Try a permission check</div>
+      <div class="body">
+        <form method="post" action="/check">
+          <label for="resource">Resource</label>
+          <select id="resource" name="resource">
+            <option value="filesystem">filesystem</option>
+            <option value="network">network</option>
+            <option value="process">process</option>
+            <option value="system">system</option>
+            <option value="database">database</option>
+            <option value="environment">environment</option>
+          </select>
+          <label for="level">Level</label>
+          <select id="level" name="level">
+            <option value="read">read</option>
+            <option value="write">write</option>
+            <option value="execute">execute</option>
+            <option value="admin">admin</option>
+          </select>
+          <label for="path">Path (optional)</label>
+          <input id="path" name="path" placeholder="/workspace/file.txt" />
+          <div style="height:10px"></div>
+          <button class="primary" type="submit">Check</button>
+        </form>
+        {% if request.args.get('msg') %}
+          <div style="margin-top:12px">
+            <span class="badge {% if 'ALLOWED' in request.args.get('msg') %}ok{% else %}hi{% endif %}">{{ request.args.get('msg') }}</span>
+            {% if request.args.get('approval') %}
+              <span class="badge hi">requires_approval={{ request.args.get('approval') }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">Current permissions</div>
+      <div class="body">
+        <table class="table">
+          <thead><tr><th>Resource</th><th>Level</th><th>Risk</th><th>Enabled</th><th>Paths</th><th>Whitelist</th></tr></thead>
+          <tbody>
+            {% for p in data.permissions %}
+            <tr>
+              <td>{{ p.resource_type }}</td>
+              <td>{{ p.level }}</td>
+              <td>{{ p.risk_level }}</td>
+              <td>{{ 'yes' if p.enabled else 'no' }}</td>
+              <td>{{ ', '.join(p.paths) if p.paths else '—' }}</td>
+              <td>{{ ', '.join(p.whitelist) if p.whitelist else '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="head">Recent access log</div>
+      <div class="body">
+        <table class="table">
+          <thead><tr><th>Time (UTC)</th><th>Resource</th><th>Level</th><th>Path</th><th>Allowed</th></tr></thead>
+          <tbody>
+            {% for entry in data.access_log|reverse %}
+            <tr>
+              <td>{{ entry.timestamp }}</td>
+              <td>{{ entry.resource_type }}</td>
+              <td>{{ entry.level }}</td>
+              <td>{{ entry.path or '—' }}</td>
+              <td>{{ 'yes' if entry.allowed else 'no' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">No access attempts yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Vaultrix · Alpha</footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>

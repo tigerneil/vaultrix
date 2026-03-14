@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 580" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#050816"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#475569"/>
+    </marker>
+    <marker id="arrGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#10b981"/>
+    </marker>
+    <marker id="arrRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#ef4444"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="580" fill="url(#bg2)" rx="16"/>
+
+  <!-- Title -->
+  <text x="450" y="36" text-anchor="middle" fill="#f1f5f9" font-size="20" font-weight="800">Multi-Agent Security Architecture</text>
+  <text x="450" y="56" text-anchor="middle" fill="#64748b" font-size="12">Isolated sandboxes + encrypted channel + trust-based access control</text>
+
+  <!-- Orchestrator (center top) -->
+  <rect x="300" y="75" width="300" height="60" rx="12" fill="#6366f1" fill-opacity="0.15" stroke="#6366f1" stroke-width="2"/>
+  <text x="450" y="100" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="700">Agent Orchestrator</text>
+  <text x="450" y="118" text-anchor="middle" fill="#818cf8" font-size="10">Lifecycle, policy enforcement, event log</text>
+
+  <!-- Secure Channel (horizontal bar) -->
+  <rect x="80" y="165" width="740" height="44" rx="10" fill="#f59e0b" fill-opacity="0.1" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="450" y="185" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">Secure Channel</text>
+  <text x="450" y="199" text-anchor="middle" fill="#f59e0b" font-size="9">Encrypted | Policy-checked | Rate-limited | Audited</text>
+
+  <!-- Arrow: orchestrator -> channel -->
+  <path d="M450 135 L450 165" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Agent 1: Researcher -->
+  <g transform="translate(60, 240)">
+    <rect width="230" height="200" rx="12" fill="#0f172a" stroke="#06b6d4" stroke-width="1.5"/>
+    <rect x="0" y="0" width="230" height="36" rx="12" fill="#06b6d4" fill-opacity="0.15"/>
+    <rect x="0" y="18" width="230" height="18" fill="#06b6d4" fill-opacity="0.15"/>
+    <text x="115" y="24" text-anchor="middle" fill="#67e8f9" font-size="13" font-weight="700">Agent: Researcher</text>
+
+    <rect x="15" y="48" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="67" text-anchor="middle" fill="#94a3b8" font-size="10">Sandbox (isolated FS)</text>
+
+    <rect x="15" y="86" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="105" text-anchor="middle" fill="#94a3b8" font-size="10">PermissionSet: default</text>
+
+    <rect x="15" y="124" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="143" text-anchor="middle" fill="#94a3b8" font-size="10">Tools: file_read, search</text>
+
+    <rect x="15" y="162" width="95" height="24" rx="6" fill="#10b981" fill-opacity="0.15"/>
+    <text x="62" y="178" text-anchor="middle" fill="#10b981" font-size="9" font-weight="600">TRUSTED</text>
+    <rect x="120" y="162" width="95" height="24" rx="6" fill="#06b6d4" fill-opacity="0.15"/>
+    <text x="167" y="178" text-anchor="middle" fill="#06b6d4" font-size="9" font-weight="600">ROLE: data</text>
+  </g>
+
+  <!-- Agent 2: Coder -->
+  <g transform="translate(335, 240)">
+    <rect width="230" height="200" rx="12" fill="#0f172a" stroke="#818cf8" stroke-width="1.5"/>
+    <rect x="0" y="0" width="230" height="36" rx="12" fill="#818cf8" fill-opacity="0.15"/>
+    <rect x="0" y="18" width="230" height="18" fill="#818cf8" fill-opacity="0.15"/>
+    <text x="115" y="24" text-anchor="middle" fill="#a5b4fc" font-size="13" font-weight="700">Agent: Coder</text>
+
+    <rect x="15" y="48" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="67" text-anchor="middle" fill="#94a3b8" font-size="10">Sandbox (isolated FS)</text>
+
+    <rect x="15" y="86" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="105" text-anchor="middle" fill="#94a3b8" font-size="10">PermissionSet: developer</text>
+
+    <rect x="15" y="124" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="143" text-anchor="middle" fill="#94a3b8" font-size="10">Tools: file_write, shell</text>
+
+    <rect x="15" y="162" width="95" height="24" rx="6" fill="#10b981" fill-opacity="0.15"/>
+    <text x="62" y="178" text-anchor="middle" fill="#10b981" font-size="9" font-weight="600">TRUSTED</text>
+    <rect x="120" y="162" width="95" height="24" rx="6" fill="#818cf8" fill-opacity="0.15"/>
+    <text x="167" y="178" text-anchor="middle" fill="#818cf8" font-size="9" font-weight="600">ROLE: code</text>
+  </g>
+
+  <!-- Agent 3: Reviewer -->
+  <g transform="translate(610, 240)">
+    <rect width="230" height="200" rx="12" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+    <rect x="0" y="0" width="230" height="36" rx="12" fill="#f59e0b" fill-opacity="0.15"/>
+    <rect x="0" y="18" width="230" height="18" fill="#f59e0b" fill-opacity="0.15"/>
+    <text x="115" y="24" text-anchor="middle" fill="#fcd34d" font-size="13" font-weight="700">Agent: Reviewer</text>
+
+    <rect x="15" y="48" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="67" text-anchor="middle" fill="#94a3b8" font-size="10">Sandbox (isolated FS)</text>
+
+    <rect x="15" y="86" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="105" text-anchor="middle" fill="#94a3b8" font-size="10">PermissionSet: restricted</text>
+
+    <rect x="15" y="124" width="200" height="30" rx="6" fill="#0b0f1e" stroke="#1e293b" stroke-width="1"/>
+    <text x="115" y="143" text-anchor="middle" fill="#94a3b8" font-size="10">Tools: file_read only</text>
+
+    <rect x="15" y="162" width="95" height="24" rx="6" fill="#eab308" fill-opacity="0.15"/>
+    <text x="62" y="178" text-anchor="middle" fill="#eab308" font-size="9" font-weight="600">RESTRICTED</text>
+    <rect x="120" y="162" width="95" height="24" rx="6" fill="#f59e0b" fill-opacity="0.15"/>
+    <text x="167" y="178" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="600">ROLE: review</text>
+  </g>
+
+  <!-- Arrows: agents -> channel -->
+  <path d="M175 240 L175 209" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M450 240 L450 209" stroke="#818cf8" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M725 240 L725 209" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Communication flow arrows between agents (through channel) -->
+  <path d="M290 187 L335 187" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#arrGreen)"/>
+  <text x="312" y="182" text-anchor="middle" fill="#10b981" font-size="8">delegate</text>
+
+  <path d="M565 187 L610 187" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 2" marker-end="url(#arrGreen)"/>
+  <text x="587" y="182" text-anchor="middle" fill="#10b981" font-size="8">review</text>
+
+  <!-- Blocked communication (red X) -->
+  <g transform="translate(80, 460)">
+    <rect width="740" height="50" rx="10" fill="#ef4444" fill-opacity="0.06" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 2"/>
+    <text x="370" y="22" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">Policy Enforcement Layer</text>
+    <text x="370" y="38" text-anchor="middle" fill="#ef4444" font-size="9">Trust rules | Rate limits (60/min global, 20/min per-agent) | Max payload 64KB | Type restrictions | Encryption required</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(80, 530)">
+    <rect x="0" y="0" width="15" height="10" rx="2" fill="#10b981" fill-opacity="0.3"/>
+    <text x="20" y="9" fill="#94a3b8" font-size="9">Trusted</text>
+
+    <rect x="80" y="0" width="15" height="10" rx="2" fill="#eab308" fill-opacity="0.3"/>
+    <text x="100" y="9" fill="#94a3b8" font-size="9">Restricted</text>
+
+    <rect x="175" y="0" width="15" height="10" rx="2" fill="#ef4444" fill-opacity="0.3"/>
+    <text x="195" y="9" fill="#94a3b8" font-size="9">Untrusted (blocked)</text>
+
+    <line x1="310" y1="5" x2="340" y2="5" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 2"/>
+    <text x="345" y="9" fill="#94a3b8" font-size="9">Encrypted message</text>
+
+    <rect x="470" y="0" width="15" height="10" rx="2" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <text x="490" y="9" fill="#94a3b8" font-size="9">Isolated sandbox</text>
+
+    <text x="610" y="9" fill="#64748b" font-size="9">Each agent: own sandbox + own permissions + mediated comms</text>
+  </g>
+</svg>
