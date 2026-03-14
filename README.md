@@ -222,13 +222,4 @@ Built on principles from:
 
 ---
 
-## 📞 Contact
-
-- **Website**: https://vaultrix.dev
-- **Documentation**: https://docs.vaultrix.dev
-- **Community**: https://discord.gg/vaultrix
-- **Twitter**: @vaultrix
-
----
-
 **Vaultrix: Autonomous AI, Safely Unleashed** 🔐
