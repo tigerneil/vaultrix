@@ -349,7 +349,7 @@
           Layer 3 &middot; Approval (Human-in-the-Loop)
         </div>
         <div class="arch-layer" style="background:rgba(16,185,129,0.12);color:var(--green);margin-top:18px;">
-          Layer 4 &middot; Sandbox (Docker Isolation)
+          Layer 4 &middot; Sandbox (Docker / macOS / Local Isolation)
         </div>
         <div class="arch-layer" style="background:rgba(239,68,68,0.12);color:var(--red);margin-top:18px;">
           Layer 5 &middot; Encryption (Data Protection)
@@ -373,7 +373,7 @@
           <h3>Core Components</h3>
           <ul>
             <li><strong>VaultrixAgent</strong> &mdash; orchestration &amp; lifecycle</li>
-            <li><strong>SandboxManager</strong> &mdash; Docker/local isolation</li>
+            <li><strong>SandboxManager</strong> &mdash; Docker/macOS/local isolation</li>
             <li><strong>PermissionManager</strong> &mdash; deny-by-default ACL</li>
             <li><strong>AgentOrchestrator</strong> &mdash; multi-agent coordination</li>
             <li><strong>SecureChannel</strong> &mdash; encrypted inter-agent comms</li>
@@ -536,9 +536,10 @@
       <div class="three-col" style="margin-top:8px;">
         <div class="card">
           <h3><span class="green">Sandbox Manager</span></h3>
-          <p>Docker-based isolation with resource limits (CPU, memory, storage). Network disabled by default. Auto-detects environment.</p>
+          <p>Multi-backend isolation: Docker containers, macOS kernel sandbox (<code>sandbox-exec</code>), or local subprocess. Network disabled by default. Auto-detects the best available backend.</p>
           <div style="margin-top:12px;">
             <span class="tag tag-green">Docker</span>
+            <span class="tag tag-green">macOS Seatbelt</span>
             <span class="tag tag-green">Local Fallback</span>
           </div>
         </div>
@@ -631,7 +632,7 @@
         <div>
           <h3 style="margin-bottom:16px;">Core</h3>
           <div class="card" style="margin-bottom:12px;"><strong>Python 3.10+</strong> <span class="muted">&mdash; async-ready, type hints</span></div>
-          <div class="card" style="margin-bottom:12px;"><strong>Docker 20.10+</strong> <span class="muted">&mdash; container isolation</span></div>
+          <div class="card" style="margin-bottom:12px;"><strong>Docker / macOS Sandbox</strong> <span class="muted">&mdash; container or kernel-level isolation</span></div>
           <div class="card" style="margin-bottom:12px;"><strong>Anthropic SDK</strong> <span class="muted">&mdash; Claude LLM integration</span></div>
           <div class="card" style="margin-bottom:12px;"><strong>Pydantic 2.0</strong> <span class="muted">&mdash; type safety &amp; validation</span></div>
           <div class="card" style="margin-bottom:12px;"><strong>Click + Rich</strong> <span class="muted">&mdash; CLI framework &amp; terminal UI</span></div>

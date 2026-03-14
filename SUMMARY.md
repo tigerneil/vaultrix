@@ -307,7 +307,7 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
 
 ## 📞 Contact
 
-- **Repository**: https://github.com/yourusername/vaultrix
+- **Repository**: https://github.com/tigerneil/vaultrix
 - **Email**: team@vaultrix.dev
 - **Discord**: https://discord.gg/vaultrix (coming soon)
 - **Twitter**: @vaultrix

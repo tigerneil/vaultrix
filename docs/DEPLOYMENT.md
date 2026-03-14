@@ -505,7 +505,7 @@ kubectl set env deployment/vaultrix -n vaultrix VAULTRIX_LOG_LEVEL=DEBUG
 
 1. Check logs: `docker logs vaultrix` or `kubectl logs`
 2. Review [ARCHITECTURE.md](ARCHITECTURE.md) for system design
-3. Open an issue: https://github.com/yourusername/vaultrix/issues
+3. Open an issue: https://github.com/tigerneil/vaultrix/issues
 4. Join Discord: https://discord.gg/vaultrix
 
 ---

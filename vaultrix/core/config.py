@@ -49,7 +49,7 @@ class VaultrixConfig(BaseModel):
     @field_validator("sandbox_backend")
     @classmethod
     def validate_sandbox_backend(cls, v: str) -> str:
-        allowed = {"auto", "docker", "local"}
+        allowed = {"auto", "docker", "macos", "local"}
         if v not in allowed:
             raise ValueError(f"sandbox_backend must be one of {allowed}, got {v!r}")
         return v

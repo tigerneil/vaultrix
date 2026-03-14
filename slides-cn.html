@@ -481,7 +481,7 @@
             </div>
             <div class="arch-arrow">&darr;</div>
             <div class="arch-layer" style="background:rgba(16,185,129,0.12);color:var(--green);">
-              第 4 层 &middot; 沙箱层（Docker 隔离）
+              第 4 层 &middot; 沙箱层（Docker / macOS / 本地隔离）
             </div>
             <div class="arch-arrow">&darr;</div>
             <div class="arch-layer" style="background:rgba(239,68,68,0.12);color:var(--red);">
@@ -725,9 +725,10 @@
       <div class="three-col" style="margin-top:8px;">
         <div class="card">
           <h3><span class="green">沙箱管理器</span></h3>
-          <p>Docker 容器隔离，CPU/内存/存储资源限制，网络默认关闭，自动环境检测与本地回退。</p>
+          <p>多后端隔离：Docker 容器、macOS 内核沙箱（sandbox-exec）或本地子进程。网络默认关闭，自动检测最优后端。</p>
           <div style="margin-top:10px;">
             <span class="tag tag-green">Docker</span>
+            <span class="tag tag-green">macOS Seatbelt</span>
             <span class="tag tag-green">本地回退</span>
           </div>
         </div>
@@ -822,7 +823,7 @@
         <div>
           <h3 style="margin-bottom:14px;">核心技术</h3>
           <div class="card" style="margin-bottom:10px;padding:16px 20px;"><strong>Python 3.10+</strong> <span class="muted">&mdash; 异步支持 &middot; 类型标注</span></div>
-          <div class="card" style="margin-bottom:10px;padding:16px 20px;"><strong>Docker 20.10+</strong> <span class="muted">&mdash; 容器级隔离</span></div>
+          <div class="card" style="margin-bottom:10px;padding:16px 20px;"><strong>Docker / macOS Sandbox</strong> <span class="muted">&mdash; 容器级或内核级隔离</span></div>
           <div class="card" style="margin-bottom:10px;padding:16px 20px;"><strong>Anthropic SDK</strong> <span class="muted">&mdash; Claude 大模型集成</span></div>
           <div class="card" style="margin-bottom:10px;padding:16px 20px;"><strong>Pydantic 2.0</strong> <span class="muted">&mdash; 类型安全 &middot; 数据校验</span></div>
           <div class="card" style="margin-bottom:10px;padding:16px 20px;"><strong>Click + Rich</strong> <span class="muted">&mdash; CLI 框架 &middot; 终端 UI</span></div>

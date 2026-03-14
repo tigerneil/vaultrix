@@ -498,7 +498,7 @@ footer {
     </ul>
     <div class="nav-right">
       <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" id="themeToggle">&#x1F319;</button>
-      <a href="https://github.com/vaultrixai/vaultrix" class="nav-cta">GitHub</a>
+      <a href="https://github.com/tigerneil/vaultrix" class="nav-cta">GitHub</a>
     </div>
   </div>
 </nav>
@@ -519,7 +519,7 @@ footer {
       <div class="hero-stat"><div class="num">0</div><div class="label">Dependencies on Docker*</div></div>
       <div class="hero-stat"><div class="num">100%</div><div class="label">Local &amp; Private</div></div>
     </div>
-    <p style="font-size:.75rem;color:#475569;margin-top:12px;">* Docker enhances isolation but is optional &mdash; local sandbox works out of the box.</p>
+    <p style="font-size:.75rem;color:#475569;margin-top:12px;">* Docker enhances isolation but is optional &mdash; macOS kernel sandbox or local sandbox works out of the box.</p>
   </div>
 </section>
 
@@ -535,7 +535,7 @@ footer {
       <div class="feature-card">
         <div class="feature-icon" style="background:rgba(99,102,241,.12);color:#818cf8;">&#x1F4E6;</div>
         <h3>Strict Sandboxing</h3>
-        <p>Agents run in isolated containers with CPU/memory quotas, read-only root filesystem, dropped capabilities, and path-traversal protection.</p>
+        <p>Agents run in isolated environments &mdash; Docker containers, macOS kernel sandbox, or local subprocess &mdash; with CPU/memory quotas, filesystem restrictions, and path-traversal protection. Auto-detects the best backend.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon" style="background:rgba(6,182,212,.12);color:#06b6d4;">&#x1F6E1;</div>
@@ -593,7 +593,7 @@ footer {
       <div class="arch-layer" style="background:rgba(16,185,129,.08);color:#6ee7b7;">
         <div class="layer-num">Layer 4</div>
         <h4>Sandbox</h4>
-        <p>Container isolation</p>
+        <p>Docker / macOS / Local isolation</p>
       </div>
       <div class="arch-layer" style="background:rgba(239,68,68,.08);color:#fca5a5;">
         <div class="layer-num">Layer 5</div>
@@ -693,7 +693,7 @@ footer {
 <span class="t-dim t-line">Create an isolated workspace, run commands, and verify containment.</span>
 <span class="t-line"></span>
 <span class="t-line"><span class="t-step">&gt;</span> Creating local sandbox ...</span>
-<span class="t-line"><span class="t-ok">OK</span> Sandbox created  id=d37313f64719  backend=LocalBackend</span>
+<span class="t-line"><span class="t-ok">OK</span> Sandbox created  id=d37313f64719  backend=MacOSBackend</span>
 <span class="t-line"></span>
 <span class="t-line"><span class="t-step">&gt;</span> Executing command: <span class="t-white">echo 'Hello from the vault!'</span></span>
 <span class="t-indent">stdout: <span class="t-cyan">Hello from the vault!</span></span>
@@ -827,10 +827,10 @@ footer {
 <span class="t-line"><span class="t-step">&gt;</span> Read the file back (filesystem:read - allowed)</span>
 <span class="t-line"><span class="t-ok">OK</span> Output: <span class="t-cyan">Hello from Vaultrix agent!</span></span>
 <span class="t-line"></span>
-<span class="t-line"><span class="t-step">&gt;</span> Run shell command (process:execute - <span class="t-red">DENIED</span> by default)</span>
-<span class="t-line"><span class="t-fail">x</span> Permission denied: process:execute</span>
+<span class="t-line"><span class="t-step">&gt;</span> Run shell command (process:execute - <span class="t-green">ALLOWED</span> in sandbox)</span>
+<span class="t-line"><span class="t-ok">OK</span> Command executed in sandboxed environment</span>
 <span class="t-line"></span>
-<span class="t-dim t-line">Default sandbox blocks process execution. Switch to "developer" preset to allow it.</span>
+<span class="t-dim t-line">Commands run inside the sandbox (Docker, macOS Seatbelt, or local) with filesystem and network restrictions enforced.</span>
       </div>
 
       <!-- Panel 7: Multi-Agent -->
@@ -884,7 +884,7 @@ footer {
       <div class="step-card">
         <h4>Clone &amp; install</h4>
         <p>Grab the repo and install into a virtualenv.</p>
-        <code>git clone https://github.com/vaultrixai/vaultrix.git<br>cd vaultrix<br>pip install -e .</code>
+        <code>git clone https://github.com/tigerneil/vaultrix.git<br>cd vaultrix<br>pip install -e .</code>
       </div>
       <div class="step-card">
         <h4>Run the demo</h4>
@@ -912,8 +912,8 @@ footer {
       <h2>Ready to Build Safer AI Agents?</h2>
       <p>Vaultrix is open source and looking for contributors: security researchers, LLM/agent engineers, and cryptography engineers.</p>
       <div class="cta-actions">
-        <a href="https://github.com/vaultrixai/vaultrix" class="btn btn-primary">Star on GitHub</a>
-        <a href="https://github.com/vaultrixai/vaultrix/issues" class="btn btn-secondary">View Open Issues</a>
+        <a href="https://github.com/tigerneil/vaultrix" class="btn btn-primary">Star on GitHub</a>
+        <a href="https://github.com/tigerneil/vaultrix/issues" class="btn btn-secondary">View Open Issues</a>
       </div>
     </div>
   </div>
@@ -924,7 +924,7 @@ footer {
   <div class="container footer-inner">
     <div class="footer-brand">Vaultrix &copy; 2026 &mdash; MIT License</div>
     <div class="footer-links">
-      <a href="https://github.com/vaultrixai/vaultrix">GitHub</a>
+      <a href="https://github.com/tigerneil/vaultrix">GitHub</a>
       <a href="#features">Features</a>
       <a href="#architecture">Architecture</a>
       <a href="#multi-agent">Multi-Agent</a>

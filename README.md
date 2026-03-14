@@ -75,7 +75,7 @@ All agent data, memory, and logs are encrypted at rest using local key managemen
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/vaultrix.git
+git clone https://github.com/tigerneil/vaultrix.git
 cd vaultrix
 
 # Install dependencies

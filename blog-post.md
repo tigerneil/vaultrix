@@ -225,7 +225,7 @@ The web dashboard provides real-time visibility into the permission log, letting
 
 ```bash
 # Clone and install
-git clone https://github.com/yourusername/vaultrix.git
+git clone https://github.com/tigerneil/vaultrix.git
 cd vaultrix
 pip install -e .
 

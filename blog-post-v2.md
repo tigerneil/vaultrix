@@ -250,7 +250,7 @@ Ten layers of protection, each independent.
 ## Try It Yourself
 
 ```bash
-git clone https://github.com/vaultrixai/vaultrix.git
+git clone https://github.com/tigerneil/vaultrix.git
 cd vaultrix && pip install -e .
 
 # Core security demo (6 features)

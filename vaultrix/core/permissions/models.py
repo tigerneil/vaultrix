@@ -168,9 +168,8 @@ DEFAULT_SANDBOX_PERMISSIONS = PermissionSet(
         ),
         Permission(
             resource_type=ResourceType.PROCESS,
-            level=PermissionLevel.NONE,
-            enabled=False,
-            risk_level=RiskLevel.CRITICAL,
+            level=PermissionLevel.EXECUTE,
+            risk_level=RiskLevel.LOW,
         ),
         Permission(
             resource_type=ResourceType.SYSTEM,
@@ -211,7 +210,7 @@ DEVELOPER_PERMISSIONS = PermissionSet(
         ),
         Permission(
             resource_type=ResourceType.PROCESS,
-            level=PermissionLevel.READ,
+            level=PermissionLevel.EXECUTE,
             risk_level=RiskLevel.MEDIUM,
         ),
     ],

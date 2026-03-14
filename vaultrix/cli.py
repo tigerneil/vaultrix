@@ -84,6 +84,14 @@ def start(permission_set: str, interactive: bool):
 
 def interactive_mode(agent: VaultrixAgent):
     """Run agent in interactive mode."""
+    import sys
+    if not sys.stdin.isatty():
+        console.print("[yellow]No interactive terminal detected.[/yellow]")
+        console.print("[dim]Interactive mode requires a real terminal (not piped stdin).[/dim]")
+        console.print("[dim]Try running directly in your terminal: vaultrix start -i[/dim]")
+        show_status(agent)
+        return
+
     console.print("\n[bold]Interactive Mode[/bold]")
     console.print("[dim]Type 'help' for commands, 'exit' to quit[/dim]\n")
 
@@ -196,7 +204,7 @@ def info():
   • Audited Skill Registry (VaultHub)
 
 [bold]Documentation:[/bold] https://docs.vaultrix.dev
-[bold]Repository:[/bold] https://github.com/yourusername/vaultrix
+[bold]Repository:[/bold] https://github.com/tigerneil/vaultrix
 """
     console.print(Panel(info_panel, title="🔐 Information", border_style="cyan"))
 

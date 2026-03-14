@@ -70,10 +70,10 @@ ui = [
 vaultrix = "vaultrix.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/vaultrix"
+Homepage = "https://github.com/tigerneil/vaultrix"
 Documentation = "https://docs.vaultrix.dev"
-Repository = "https://github.com/yourusername/vaultrix"
-"Bug Tracker" = "https://github.com/yourusername/vaultrix/issues"
+Repository = "https://github.com/tigerneil/vaultrix"
+"Bug Tracker" = "https://github.com/tigerneil/vaultrix/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

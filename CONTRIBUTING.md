@@ -9,7 +9,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/vaultrix.git`
+2. Clone your fork: `git clone https://github.com/tigerneil/vaultrix.git`
 3. Create a virtual environment: `python -m venv venv`
 4. Activate the environment: `source venv/bin/activate` (Unix) or `venv\Scripts\activate` (Windows)
 5. Install dependencies: `pip install -r requirements.txt`
