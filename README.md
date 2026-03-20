@@ -210,13 +210,4 @@ Vaultrix is released under the [MIT License](LICENSE).
 
 ---
 
-## 🙏 Acknowledgments
-
-Built on principles from:
-- OpenAI's safety research
-- Anthropic's Constitutional AI
-- The open-source AI safety community
-
----
-
 **Vaultrix: Autonomous AI, Safely Unleashed** 🔐
