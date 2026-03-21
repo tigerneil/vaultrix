@@ -39,18 +39,29 @@ def example_read_only_permissions():
     )
 
     with VaultrixAgent(permission_set=read_only_perms) as agent:
-        # This should work (read operation)
-        print("\n✓ Testing read operation...")
-        result = agent.execute_command("ls -la /workspace")
-        print(f"  Success! Found {len(result['stdout'].split())} items")
+        # Seed a file so we have something to read
+        agent.sandbox_manager.write_file("workspace/sample.txt", b"hello from vaultrix")
 
-        # This should fail (write operation)
+        # This should work (read operation on filesystem)
+        print("\n✓ Testing read operation (filesystem:read)...")
+        content = agent.read_file("/workspace/sample.txt")
+        print(f"  Success! Read {len(content)} bytes: {content.decode()}")
+
+        # This should fail (write operation — no filesystem:write granted)
         print("\n✗ Testing write operation (should fail)...")
         try:
             agent.write_file("/workspace/test.txt", b"test content")
             print("  Unexpected: Write succeeded!")
         except PermissionDeniedException as e:
             print(f"  Expected: Write denied - {e}")
+
+        # This should also fail (command execution — no process:execute granted)
+        print("\n✗ Testing command execution (should fail)...")
+        try:
+            agent.execute_command("ls /workspace")
+            print("  Unexpected: Command succeeded!")
+        except PermissionDeniedException as e:
+            print(f"  Expected: Command denied - {e}")
 
 
 def example_network_whitelist():
@@ -115,9 +126,11 @@ def example_multi_path_access():
     )
 
     with VaultrixAgent(permission_set=multi_path_perms) as agent:
-        # Create directory structure
+        # Create directory structure via sandbox (bypasses permission check)
         print("\n✓ Setting up directory structure...")
-        agent.execute_command("mkdir -p /workspace/data /workspace/output /workspace/forbidden")
+        for d in ["workspace/data", "workspace/output", "workspace/forbidden"]:
+            agent.sandbox_manager.write_file(f"{d}/.keep", b"")
+        print("  Directories ready.")
 
         # Test allowed paths
         print("\n✓ Testing allowed path (/workspace/data)...")
