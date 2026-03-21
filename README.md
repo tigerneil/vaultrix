@@ -213,9 +213,6 @@ pytest tests/ -v
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### Security Contributions
-Found a security vulnerability? Please report it privately to security@vaultrix.dev (DO NOT open a public issue).
-
 ---
 
 ## 📄 License
