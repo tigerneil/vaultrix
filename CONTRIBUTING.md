@@ -102,7 +102,5 @@ We welcome contributions in the following areas:
 
 If you have questions about contributing, please:
 - Open a discussion on GitHub
-- Join our Discord community
-- Email the team at team@vaultrix.dev
 
 Thank you for contributing to Vaultrix! 🔐
