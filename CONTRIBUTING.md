@@ -45,10 +45,8 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 Security is paramount in Vaultrix. When contributing security-related changes:
 
-1. **Do NOT** open public issues for security vulnerabilities
-2. Email security concerns to: security@vaultrix.dev
-3. Include detailed reproduction steps
-4. Allow time for the maintainers to address the issue before public disclosure
+1. Include detailed reproduction steps
+2. Allow time for the maintainers to address the issue before public disclosure
 
 ## Documentation
 
