@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaultrix HITL Approvals</title>
+    <!-- Use standard simple styling -->
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.5; padding: 2rem; max-width: 800px; margin: 0 auto; color: #333; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .badge-critical { background: #dc3545; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .badge-high { background: #fd7e14; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        button { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 0.5rem; }
+        .btn-approve { background: #198754; color: white; }
+        .btn-deny { background: #6c757d; color: white; }
+    </style>
+</head>
+<body style="background-color: #f8f9fa;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 1rem; margin-bottom: 2rem;">
+        <h1 style="margin: 0; color: #212529;">Vaultrix Security Center</h1>
+        <nav>
+            <a href="/" style="margin-right: 1rem; color: #0d6efd; text-decoration: none;">Permissions</a>
+            <a href="/agent" style="margin-right: 1rem; color: #0d6efd; text-decoration: none;">Agent Runner</a>
+            <a href="/approvals" style="font-weight: bold; color: #495057; text-decoration: none;">HITL Approvals</a>
+        </nav>
+    </div>
+
+    <h2 style="color: #495057;">Pending Authorizations</h2>
+    <p>The following actions require Human-In-The-Loop approval before execution:</p>
+    
+    <div>
+        {% for req in pending_requests %}
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                    <strong>ID: {{ req.id }}</strong>
+                    <span class="badge-{{ req.risk.lower() }}">{{ req.risk }} RISK</span>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <p style="margin: 0.2rem 0;"><strong>Agent Context:</strong> {{ req.agent }}</p>
+                    <p style="margin: 0.2rem 0;"><strong>Proposed Action:</strong> <code style="background: #eee; padding: 2px 4px; border-radius: 3px;">{{ req.action }}</code></p>
+                    {% if req.path %}
+                    <p style="margin: 0.2rem 0;"><strong>Target Path:</strong> <code style="background: #eee; padding: 2px 4px; border-radius: 3px;">{{ req.path }}</code></p>
+                    {% endif %}
+                    {% if req.cmd %}
+                    <p style="margin: 0.2rem 0;"><strong>Syscall/Command:</strong> <code style="background: #eee; padding: 2px 4px; border-radius: 3px;">{{ req.cmd }}</code></p>
+                    {% endif %}
+                </div>
+                <div>
+                    <button class="btn-approve">Approve Execution</button>
+                    <button class="btn-deny">Deny</button>
+                </div>
+            </div>
+        {% else %}
+            <p style="color: #6c757d; font-style: italic;">No pending approvals in the queue.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
