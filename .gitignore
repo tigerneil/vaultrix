@@ -55,3 +55,13 @@ workspaces/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local artifacts and generated files
+.omx/
+control-arena-main/
+main.zip
+slides-cn.pdf
+vaultrix_pitch_deck*
+fix.py
+gen_pptx.py
+video/
