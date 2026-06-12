@@ -8,12 +8,9 @@ Covers:
 - AST scanner detection
 """
 
-import time
-import tempfile
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-import pytest
 
 from vaultrix.core.permissions import (
     PermissionManager,
@@ -21,10 +18,9 @@ from vaultrix.core.permissions import (
     Permission,
     ResourceType,
     PermissionLevel,
-    RiskLevel,
 )
 from vaultrix.core.permissions.models import _safe_path_match
-from vaultrix.safehub.scanner.analyzer import scan_skill, Severity
+from vaultrix.safehub.scanner.analyzer import scan_skill
 
 
 # ── Path traversal tests ───────────────────────────────────────────────────

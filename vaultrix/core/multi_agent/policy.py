@@ -7,7 +7,7 @@ trust level is required for cross-agent operations.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Optional, Set
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 

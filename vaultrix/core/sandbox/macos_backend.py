@@ -196,6 +196,7 @@ class MacOSBackend(SandboxBackend):
                 timeout=effective_timeout,
                 cwd=cwd,
                 env=env,
+                check=False,
             )
             stdout = proc.stdout.decode("utf-8", errors="replace")
             stderr = proc.stderr.decode("utf-8", errors="replace")
@@ -216,7 +217,7 @@ class MacOSBackend(SandboxBackend):
             }
         except Exception as exc:
             from vaultrix.core.sandbox.manager import SandboxException
-            raise SandboxException(f"Failed to execute command: {exc}")
+            raise SandboxException(f"Failed to execute command: {exc}") from exc
 
     def read_file(self, path: str) -> bytes:
         self._require_running()

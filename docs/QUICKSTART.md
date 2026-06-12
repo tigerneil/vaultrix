@@ -13,7 +13,7 @@ Get started with Vaultrix in minutes!
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/tigerneil/vaultrix.git
+git clone https://github.com/yourusername/vaultrix.git
 cd vaultrix
 ```
 
@@ -288,7 +288,7 @@ ModuleNotFoundError: No module named 'vaultrix'
 
 - **Documentation**: https://docs.vaultrix.dev
 - **Discord**: https://discord.gg/vaultrix
-- **Issues**: https://github.com/tigerneil/vaultrix/issues
+- **Issues**: https://github.com/yourusername/vaultrix/issues
 - **Email**: team@vaultrix.dev
 
 ---

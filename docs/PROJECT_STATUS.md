@@ -294,7 +294,7 @@ None currently identified ✅
 
 - **Project Lead**: [Name]
 - **Email**: team@vaultrix.dev
-- **Repository**: https://github.com/tigerneil/vaultrix
+- **Repository**: https://github.com/yourusername/vaultrix
 - **Discord**: https://discord.gg/vaultrix (planned)
 
 ---

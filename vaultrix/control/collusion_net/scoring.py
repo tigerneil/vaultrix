@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import binascii
 import re
 from typing import Any
 
@@ -57,8 +58,9 @@ class InterAgentMonitor(Monitor):
                 decoded = base64.b64decode(match).decode("utf-8", errors="ignore")
                 if "VAULTRIX" in decoded or "password" in decoded.lower():
                     hits += 3  # strong signal
-            except Exception:
-                pass
+            except (binascii.Error, ValueError):
+                # Not valid base64 — just a lookalike string in a comment.
+                continue
 
         if hits >= 3:
             verdict = MonitorVerdict.BLOCKED

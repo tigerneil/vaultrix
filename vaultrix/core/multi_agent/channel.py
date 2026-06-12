@@ -16,7 +16,7 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 from vaultrix.core.encryption.manager import EncryptionManager
-from vaultrix.core.multi_agent.policy import CommunicationPolicy, TrustLevel, _TRUST_RANK
+from vaultrix.core.multi_agent.policy import CommunicationPolicy
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,6 @@ class SecureChannel:
             )
 
         # 4. Message type check
-        trust = self.policy.get_trust(message.from_agent, message.to_agent)
         allowed_types = self._allowed_types(message.from_agent, message.to_agent)
         if message.message_type.value not in allowed_types:
             self._audit(message, "DENIED:type")

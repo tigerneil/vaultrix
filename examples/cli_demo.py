@@ -31,7 +31,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich.syntax import Syntax
 from rich.prompt import Confirm
 from rich import box
 
@@ -188,14 +187,9 @@ def demo_hitl() -> None:
     )
 
     from vaultrix.core.permissions import (
-        PermissionManager,
-        DEFAULT_SANDBOX_PERMISSIONS,
         ResourceType,
         PermissionLevel,
-        RiskLevel,
     )
-
-    pm = PermissionManager(DEFAULT_SANDBOX_PERMISSIONS)
 
     # Simulated actions with varying risk
     actions = [
@@ -250,7 +244,7 @@ def demo_hitl() -> None:
         if needs_approval:
             try:
                 approved = Confirm.ask(
-                    f"           [bold yellow]HITL[/bold yellow] Approve this action?",
+                    "           [bold yellow]HITL[/bold yellow] Approve this action?",
                     default=False,
                 )
             except EOFError:
@@ -430,7 +424,10 @@ def demo_agent_tools() -> None:
 
     step("Registered tools:")
     for t in registry.all_tools():
-        perms = ", ".join(f"{r.value}:{l.value}" for r, l in t.required_permissions) or "none"
+        perms = (
+            ", ".join(f"{resource.value}:{level.value}" for resource, level in t.required_permissions)
+            or "none"
+        )
         substep(f"[cyan]{t.name:20}[/cyan] perms=({perms})")
 
     console.print()

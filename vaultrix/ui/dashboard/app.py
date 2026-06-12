@@ -88,7 +88,7 @@ def check_permission():
             f"{resource.value}:{level.value} is ALLOWED" if allowed else f"{resource.value}:{level.value} is DENIED"
         )
         return redirect(url_for("index", msg=message, approval=str(requires_approval).lower()))
-    except Exception as e:  # broad for simplicity in demo
+    except Exception as e:  # noqa: BLE001 - broad for simplicity in demo
         return redirect(url_for("index", msg=f"Error: {e}"))
 
 
@@ -154,4 +154,6 @@ def agent_run():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    host = os.environ.get("HOST", "127.0.0.1")
+    debug = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
+    app.run(host=host, port=port, debug=debug)

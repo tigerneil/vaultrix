@@ -1,5 +1,6 @@
 """Command-line interface for Vaultrix."""
 
+import importlib.util
 import logging
 import sys
 from pathlib import Path
@@ -9,14 +10,10 @@ import click
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
-from rich.syntax import Syntax
-from rich import print as rprint
 
 from vaultrix import __version__
 from vaultrix.core.agent import VaultrixAgent
-from vaultrix.core.sandbox import SandboxConfig
 from vaultrix.core.permissions import (
-    PermissionSet,
     DEFAULT_SANDBOX_PERMISSIONS,
     DEVELOPER_PERMISSIONS,
     RESTRICTED_PERMISSIONS,
@@ -84,14 +81,6 @@ def start(permission_set: str, interactive: bool):
 
 def interactive_mode(agent: VaultrixAgent):
     """Run agent in interactive mode."""
-    import sys
-    if not sys.stdin.isatty():
-        console.print("[yellow]No interactive terminal detected.[/yellow]")
-        console.print("[dim]Interactive mode requires a real terminal (not piped stdin).[/dim]")
-        console.print("[dim]Try running directly in your terminal: vaultrix start -i[/dim]")
-        show_status(agent)
-        return
-
     console.print("\n[bold]Interactive Mode[/bold]")
     console.print("[dim]Type 'help' for commands, 'exit' to quit[/dim]\n")
 
@@ -204,7 +193,7 @@ def info():
   • Audited Skill Registry (VaultHub)
 
 [bold]Documentation:[/bold] https://docs.vaultrix.dev
-[bold]Repository:[/bold] https://github.com/tigerneil/vaultrix
+[bold]Repository:[/bold] https://github.com/yourusername/vaultrix
 """
     console.print(Panel(info_panel, title="🔐 Information", border_style="cyan"))
 
@@ -234,10 +223,9 @@ def check_requirements():
         requirements.append(("Python", f"✗ {py_version} (need 3.10+)", "red"))
 
     # Check dependencies
-    try:
-        import anthropic
+    if importlib.util.find_spec("anthropic") is not None:
         requirements.append(("Anthropic SDK", "✓", "green"))
-    except ImportError:
+    else:
         requirements.append(("Anthropic SDK", "✗ Not installed", "yellow"))
 
     # Display results
@@ -451,7 +439,7 @@ def skill_test(skill_dir: str):
     try:
         result = runner.run(Path(skill_dir))
         if result["success"]:
-            console.print(f"[green]\u2713[/green] Skill completed successfully")
+            console.print("[green]\u2713[/green] Skill completed successfully")
             if result.get("stdout"):
                 console.print(result["stdout"])
         else:

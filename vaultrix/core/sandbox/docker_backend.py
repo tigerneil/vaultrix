@@ -28,16 +28,16 @@ def _docker_client():
     try:
         import docker
         from docker.errors import DockerException
-    except ImportError:
+    except ImportError as exc:
         raise SandboxException(
             "Docker SDK not available. Install with: pip install docker"
-        )
+        ) from exc
     try:
         client = docker.from_env()
         client.ping()
         return client
     except DockerException as exc:
-        raise SandboxException(f"Failed to connect to Docker: {exc}")
+        raise SandboxException(f"Failed to connect to Docker: {exc}") from exc
 
 
 class DockerBackend(SandboxBackend):
@@ -52,7 +52,6 @@ class DockerBackend(SandboxBackend):
     # -- SandboxBackend interface --------------------------------------------
 
     def create(self, config: SandboxConfig) -> str:
-        import docker  # lazy
         from docker.errors import DockerException, NotFound, APIError
 
         if self._container is not None:
@@ -81,7 +80,7 @@ class DockerBackend(SandboxBackend):
         except (DockerException, APIError) as exc:
             self._status = SandboxStatus.ERROR
             from vaultrix.core.sandbox.manager import SandboxException
-            raise SandboxException(f"Failed to create sandbox: {exc}")
+            raise SandboxException(f"Failed to create sandbox: {exc}") from exc
 
     def destroy(self) -> None:
         if self._container is None:
@@ -127,9 +126,13 @@ class DockerBackend(SandboxBackend):
         for chunk in bits:
             buf.write(chunk)
         buf.seek(0)
-        tar = tarfile.open(fileobj=buf)
-        member = tar.getmembers()[0]
-        return tar.extractfile(member).read()  # type: ignore[union-attr]
+        with tarfile.open(fileobj=buf) as tar:
+            member = tar.getmembers()[0]
+            extracted = tar.extractfile(member)
+            if extracted is None:
+                from vaultrix.core.sandbox.manager import SandboxException
+                raise SandboxException(f"Cannot extract {path} from container archive")
+            return extracted.read()
 
     def write_file(self, path: str, content: bytes) -> None:
         self._require_running()

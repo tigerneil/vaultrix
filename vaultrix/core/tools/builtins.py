@@ -2,23 +2,25 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, ClassVar
 
 from vaultrix.core.permissions.models import PermissionLevel, ResourceType
 from vaultrix.core.tools.base import Tool, ToolResult
 
 
 class ShellTool(Tool):
-    name = "shell"
-    description = "Execute a shell command in the sandbox and return stdout/stderr."
-    parameters_schema = {
+    name: ClassVar[str] = "shell"
+    description: ClassVar[str] = "Execute a shell command in the sandbox and return stdout/stderr."
+    parameters_schema: ClassVar[dict[str, Any]] = {
         "type": "object",
         "properties": {
             "command": {"type": "string", "description": "Command to run"},
         },
         "required": ["command"],
     }
-    required_permissions = [(ResourceType.PROCESS, PermissionLevel.EXECUTE)]
+    required_permissions: ClassVar[list[tuple[ResourceType, PermissionLevel]]] = [
+        (ResourceType.PROCESS, PermissionLevel.EXECUTE),
+    ]
 
     def __init__(self, sandbox_manager: Any) -> None:
         self._sandbox = sandbox_manager
@@ -40,16 +42,18 @@ class ShellTool(Tool):
 
 
 class FileReadTool(Tool):
-    name = "file_read"
-    description = "Read a file from the sandbox."
-    parameters_schema = {
+    name: ClassVar[str] = "file_read"
+    description: ClassVar[str] = "Read a file from the sandbox."
+    parameters_schema: ClassVar[dict[str, Any]] = {
         "type": "object",
         "properties": {
             "path": {"type": "string", "description": "File path inside the sandbox"},
         },
         "required": ["path"],
     }
-    required_permissions = [(ResourceType.FILESYSTEM, PermissionLevel.READ)]
+    required_permissions: ClassVar[list[tuple[ResourceType, PermissionLevel]]] = [
+        (ResourceType.FILESYSTEM, PermissionLevel.READ),
+    ]
 
     def __init__(self, sandbox_manager: Any) -> None:
         self._sandbox = sandbox_manager
@@ -66,9 +70,9 @@ class FileReadTool(Tool):
 
 
 class FileWriteTool(Tool):
-    name = "file_write"
-    description = "Write content to a file in the sandbox."
-    parameters_schema = {
+    name: ClassVar[str] = "file_write"
+    description: ClassVar[str] = "Write content to a file in the sandbox."
+    parameters_schema: ClassVar[dict[str, Any]] = {
         "type": "object",
         "properties": {
             "path": {"type": "string", "description": "File path inside the sandbox"},
@@ -76,7 +80,9 @@ class FileWriteTool(Tool):
         },
         "required": ["path", "content"],
     }
-    required_permissions = [(ResourceType.FILESYSTEM, PermissionLevel.WRITE)]
+    required_permissions: ClassVar[list[tuple[ResourceType, PermissionLevel]]] = [
+        (ResourceType.FILESYSTEM, PermissionLevel.WRITE),
+    ]
 
     def __init__(self, sandbox_manager: Any) -> None:
         self._sandbox = sandbox_manager
@@ -94,9 +100,9 @@ class FileWriteTool(Tool):
 
 
 class PermissionCheckTool(Tool):
-    name = "check_permission"
-    description = "Check whether a specific permission is granted."
-    parameters_schema = {
+    name: ClassVar[str] = "check_permission"
+    description: ClassVar[str] = "Check whether a specific permission is granted."
+    parameters_schema: ClassVar[dict[str, Any]] = {
         "type": "object",
         "properties": {
             "resource": {"type": "string", "enum": ["filesystem", "network", "process", "system"]},
@@ -105,7 +111,7 @@ class PermissionCheckTool(Tool):
         },
         "required": ["resource", "level"],
     }
-    required_permissions = []  # meta-tool, always allowed
+    required_permissions: ClassVar[list[tuple[ResourceType, PermissionLevel]]] = []  # meta-tool, always allowed
 
     def __init__(self, permission_manager: Any) -> None:
         self._pm = permission_manager

@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from vaultrix.core.agent.agent import VaultrixAgent
 from vaultrix.core.encryption.manager import EncryptionManager
 from vaultrix.core.multi_agent.channel import (
-    ChannelViolation,
     Message,
     MessageType,
     SecureChannel,
@@ -21,7 +20,6 @@ from vaultrix.core.multi_agent.channel import (
 from vaultrix.core.multi_agent.policy import (
     CommunicationPolicy,
     DEFAULT_MULTI_AGENT_POLICY,
-    TrustLevel,
 )
 from vaultrix.core.permissions.models import PermissionSet, DEFAULT_SANDBOX_PERMISSIONS
 from vaultrix.core.sandbox.models import SandboxConfig

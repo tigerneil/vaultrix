@@ -31,7 +31,7 @@ def demo_permission_system():
     # Create permission manager
     pm = PermissionManager(DEFAULT_SANDBOX_PERMISSIONS)
 
-    print(f"\n✓ Permission Manager initialized")
+    print("\n✓ Permission Manager initialized")
     print(f"  Permission Set: {pm.permission_set.name}")
     print(f"  Description: {pm.permission_set.description}")
 
@@ -86,7 +86,7 @@ def demo_custom_permissions():
         ]
     )
 
-    print(f"\n✓ Custom Permission Set Created")
+    print("\n✓ Custom Permission Set Created")
     print(f"  Name: {custom_perms.name}")
     print(f"  Permissions: {len(custom_perms.permissions)}")
 

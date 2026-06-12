@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from vaultrix.core.permissions.manager import PermissionManager
-from vaultrix.core.permissions.models import Permission, PermissionLevel, PermissionSet
 from vaultrix.core.sandbox.manager import SandboxManager
 from vaultrix.safehub.manifest import SkillManifest
 

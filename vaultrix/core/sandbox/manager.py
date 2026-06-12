@@ -1,14 +1,13 @@
 """Sandbox manager — delegates to the best available backend.
 
-Auto-selects Docker if available, then macOS sandbox-exec, and finally
-falls back to the local subprocess backend.  Never crashes on import.
+Auto-selects Docker if available, otherwise falls back to the local
+subprocess backend.  Never crashes on import.
 """
 
 from __future__ import annotations
 
 import logging
 import shlex
-from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from vaultrix.core.sandbox.models import (
@@ -25,8 +24,7 @@ class SandboxException(Exception):
 
 
 def _detect_backend():
-    """Return the best available backend instance (Docker > macOS > Local)."""
-    # Try Docker first
+    """Return the best available backend instance (Docker > Local)."""
     try:
         import docker  # noqa: F401
         client = docker.from_env()
@@ -35,56 +33,26 @@ def _detect_backend():
         return DockerBackend()
     except Exception:
         pass
-    # Try macOS sandbox-exec
-    try:
-        from vaultrix.core.sandbox.macos_backend import MacOSBackend, _sandbox_exec_available
-        if _sandbox_exec_available():
-            return MacOSBackend()
-    except Exception:
-        pass
-    # Fallback to local subprocess
     from vaultrix.core.sandbox.local_backend import LocalBackend
     return LocalBackend()
-
-
-def _backend_by_name(name: str):
-    """Return a backend instance for the given name."""
-    if name == "docker":
-        from vaultrix.core.sandbox.docker_backend import DockerBackend
-        return DockerBackend()
-    if name == "macos":
-        from vaultrix.core.sandbox.macos_backend import MacOSBackend
-        return MacOSBackend()
-    if name == "local":
-        from vaultrix.core.sandbox.local_backend import LocalBackend
-        return LocalBackend()
-    raise SandboxException(f"Unknown sandbox backend: {name!r}")
 
 
 class SandboxManager:
     """Manages sandboxed execution via a pluggable backend.
 
-    If *backend* is ``None`` the manager auto-detects the best available
-    backend (Docker > macOS sandbox-exec > local subprocess).
-    Pass *backend_name* (``"docker"``, ``"macos"``, ``"local"``) to force
-    a specific backend.
+    If *backend* is ``None`` the manager auto-detects Docker availability
+    and falls back to a local-process sandbox.
     """
 
     def __init__(
         self,
         config: Optional[SandboxConfig] = None,
         backend: Optional["SandboxBackend"] = None,  # noqa: F821
-        backend_name: Optional[str] = None,
     ):
         from vaultrix.core.sandbox.backend import SandboxBackend  # noqa: F811
 
         self.config = config or SandboxConfig()
-        if backend is not None:
-            self._backend: SandboxBackend = backend
-        elif backend_name and backend_name != "auto":
-            self._backend = _backend_by_name(backend_name)
-        else:
-            self._backend = _detect_backend()
+        self._backend: SandboxBackend = backend or _detect_backend()
         logger.info(
             "SandboxManager using %s backend",
             type(self._backend).__name__,

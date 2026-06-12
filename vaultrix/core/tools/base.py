@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import abc
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, ClassVar, Dict, List, Optional
 
 from vaultrix.core.permissions.models import PermissionLevel, ResourceType
 
@@ -28,13 +28,13 @@ class Tool(abc.ABC):
 
     # ── metadata (override in subclasses) ───────────────────────────────────
 
-    name: str = "unnamed_tool"
-    description: str = ""
+    name: ClassVar[str] = "unnamed_tool"
+    description: ClassVar[str] = ""
     # JSON-Schema-compatible dict describing parameters
-    parameters_schema: Dict[str, Any] = {}
+    parameters_schema: ClassVar[Dict[str, Any]] = {}
 
     # Permissions this tool requires (list of (resource, level) tuples)
-    required_permissions: List[tuple[ResourceType, PermissionLevel]] = []
+    required_permissions: ClassVar[List[tuple[ResourceType, PermissionLevel]]] = []
 
     @abc.abstractmethod
     def execute(self, **kwargs: Any) -> ToolResult:

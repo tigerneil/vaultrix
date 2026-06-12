@@ -2,7 +2,6 @@
 """Fill submission.docx with the Vaultrix Control Settings sub-project content."""
 
 from docx import Document
-from docx.shared import Pt
 from pathlib import Path
 
 SRC = Path(__file__).resolve().parent.parent / "submission.docx"

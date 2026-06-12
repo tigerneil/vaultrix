@@ -78,7 +78,7 @@ def demo_orchestrator() -> None:
     )
 
     from vaultrix.core.multi_agent import AgentOrchestrator, DEFAULT_MULTI_AGENT_POLICY
-    from vaultrix.core.permissions import DEFAULT_SANDBOX_PERMISSIONS, DEVELOPER_PERMISSIONS
+    from vaultrix.core.permissions import DEVELOPER_PERMISSIONS
 
     with AgentOrchestrator(policy=DEFAULT_MULTI_AGENT_POLICY) as orch:
         step(f"Policy: [bold]{orch.policy.name}[/bold]  max_agents={orch.policy.max_agents}")

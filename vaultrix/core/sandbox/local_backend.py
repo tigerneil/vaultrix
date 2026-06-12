@@ -11,6 +11,7 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import uuid
 from datetime import datetime, timezone
@@ -87,18 +88,20 @@ class LocalBackend(SandboxBackend):
                 cwd = str(resolved)
 
         env = {**os.environ, "VAULTRIX_SANDBOX": "local", "HOME": str(self._workspace)}
+        resolved_command = self._resolve_command(command)
 
         try:
             proc = subprocess.run(
-                command,
+                resolved_command,
                 capture_output=True,
                 timeout=effective_timeout,
                 cwd=cwd,
                 env=env,
+                check=False,
             )
             stdout = proc.stdout.decode("utf-8", errors="replace")
             stderr = proc.stderr.decode("utf-8", errors="replace")
-            self._log(f"exec {command!r} → exit {proc.returncode}")
+            self._log(f"exec {resolved_command!r} → exit {proc.returncode}")
             return {
                 "exit_code": proc.returncode,
                 "stdout": stdout,
@@ -115,7 +118,7 @@ class LocalBackend(SandboxBackend):
             }
         except Exception as exc:
             from vaultrix.core.sandbox.manager import SandboxException
-            raise SandboxException(f"Failed to execute command: {exc}")
+            raise SandboxException(f"Failed to execute command: {exc}") from exc
 
     def read_file(self, path: str) -> bytes:
         self._require_running()
@@ -178,6 +181,27 @@ class LocalBackend(SandboxBackend):
             from vaultrix.core.sandbox.manager import SandboxException
             raise SandboxException(f"Path escapes sandbox: {path}")
         return real
+
+    def _resolve_command(self, command: List[str]) -> List[str]:
+        """Resolve host executables for the local sandbox backend.
+
+        macOS machines often expose only versioned Python binaries
+        (`python3`, `python3.11`) but not a bare `python` shim. When
+        the local sandbox is standing in for a Python runtime image,
+        map `python`/`python3` to the current interpreter so existing
+        sandbox commands keep working.
+        """
+        if not command:
+            return command
+
+        executable = command[0]
+        if os.path.sep in executable or shutil.which(executable):
+            return command
+
+        if executable in {"python", "python3"}:
+            return [sys.executable, *command[1:]]
+
+        return command
 
     def _log(self, msg: str) -> None:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")

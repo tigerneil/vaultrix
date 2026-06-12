@@ -15,8 +15,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
-from vaultrix.core.permissions.manager import PermissionDeniedException, PermissionManager
-from vaultrix.core.tools.base import Tool, ToolRegistry, ToolResult
+from vaultrix.core.permissions.manager import PermissionManager
+from vaultrix.core.tools.base import ToolRegistry, ToolResult
 
 logger = logging.getLogger(__name__)
 
@@ -282,7 +282,10 @@ class AgentLoop:
             "Available tools:",
         ]
         for t in self.tools.all_tools():
-            perms = ", ".join(f"{r.value}:{l.value}" for r, l in t.required_permissions) or "none"
+            perms = ", ".join(
+                f"{resource.value}:{level.value}"
+                for resource, level in t.required_permissions
+            ) or "none"
             lines.append(f"  - {t.name}: {t.description}  [perms: {perms}]")
         text = "\n".join(lines)
         self._emit(LoopStep(role="assistant", content=text))

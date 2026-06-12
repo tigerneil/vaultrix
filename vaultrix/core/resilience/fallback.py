@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import functools
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import (
     Any,
@@ -20,7 +20,6 @@ from typing import (
     Sequence,
     Type,
     TypeVar,
-    Union,
 )
 
 logger = logging.getLogger(__name__)
