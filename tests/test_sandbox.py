@@ -8,6 +8,7 @@ from vaultrix.core.sandbox import (
     SandboxException,
     SandboxStatus,
 )
+from vaultrix.core.sandbox.local_backend import LocalBackend
 
 
 @pytest.fixture
@@ -21,7 +22,7 @@ def sandbox_config():
 
 def test_sandbox_creation(sandbox_config):
     """Test sandbox creation and destruction."""
-    manager = SandboxManager(sandbox_config)
+    manager = SandboxManager(sandbox_config, backend=LocalBackend())
 
     try:
         container_id = manager.create_sandbox()
@@ -39,7 +40,7 @@ def test_sandbox_creation(sandbox_config):
 
 def test_execute_command(sandbox_config):
     """Test command execution in sandbox."""
-    manager = SandboxManager(sandbox_config)
+    manager = SandboxManager(sandbox_config, backend=LocalBackend())
 
     try:
         manager.create_sandbox()
@@ -54,7 +55,7 @@ def test_execute_command(sandbox_config):
 
 def test_execute_command_failure(sandbox_config):
     """Test command execution failure is captured."""
-    manager = SandboxManager(sandbox_config)
+    manager = SandboxManager(sandbox_config, backend=LocalBackend())
 
     try:
         manager.create_sandbox()
@@ -68,7 +69,7 @@ def test_execute_command_failure(sandbox_config):
 
 def test_context_manager(sandbox_config):
     """Test sandbox as context manager."""
-    with SandboxManager(sandbox_config) as manager:
+    with SandboxManager(sandbox_config, backend=LocalBackend()) as manager:
         assert manager.status == SandboxStatus.RUNNING
 
         result = manager.execute_command("python --version")
@@ -79,7 +80,7 @@ def test_context_manager(sandbox_config):
 
 def test_write_and_read_file(sandbox_config):
     """Test file operations in sandbox."""
-    manager = SandboxManager(sandbox_config)
+    manager = SandboxManager(sandbox_config, backend=LocalBackend())
 
     try:
         manager.create_sandbox()
@@ -98,7 +99,7 @@ def test_write_and_read_file(sandbox_config):
 
 def test_pause_resume(sandbox_config):
     """Test pausing and resuming sandbox."""
-    manager = SandboxManager(sandbox_config)
+    manager = SandboxManager(sandbox_config, backend=LocalBackend())
 
     try:
         manager.create_sandbox()
@@ -119,7 +120,25 @@ def test_pause_resume(sandbox_config):
 
 def test_execute_without_sandbox():
     """Test that executing without sandbox raises exception."""
-    manager = SandboxManager()
+    manager = SandboxManager(backend=LocalBackend())
 
     with pytest.raises(SandboxException, match="not running"):
         manager.execute_command("echo 'test'")
+
+
+def test_local_backend_does_not_leak_host_secrets(sandbox_config, monkeypatch):
+    """Host API keys must not be visible inside local sandbox subprocesses."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-secret")
+    manager = SandboxManager(sandbox_config, backend=LocalBackend())
+
+    try:
+        manager.create_sandbox()
+        result = manager.execute_command(
+            "python -c 'import os; print(os.environ.get(\"ANTHROPIC_API_KEY\", \"missing\"))'"
+        )
+
+        assert result["exit_code"] == 0
+        assert result["stdout"].strip() == "missing"
+        assert "sk-test-secret" not in result["stdout"]
+    finally:
+        manager.destroy_sandbox()

@@ -16,7 +16,9 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
 from vaultrix.core.permissions.manager import PermissionManager
+from vaultrix.core.permissions.models import ResourceType
 from vaultrix.core.tools.base import ToolRegistry, ToolResult
+from vaultrix.core.validation import InputValidator, ValidationError as InputValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +100,10 @@ class AgentLoop:
         self.system_prompt = system_prompt or _SYSTEM_PROMPT
         self.on_step = on_step
         self.history: List[LoopStep] = []
+        self.input_validator = InputValidator(
+            allowed_tools={tool.name for tool in self.tools.all_tools()},
+            allowed_path_roots=self._filesystem_roots(),
+        )
 
         # Anti-hallucination tracking
         self._tool_call_count = 0
@@ -240,6 +246,10 @@ class AgentLoop:
         tool = self.tools.get(name)
         if tool is None:
             return ToolResult(success=False, error=f"Unknown tool: {name}")
+        try:
+            inputs = self.input_validator.validate_tool_input(name, inputs)
+        except InputValidationError as exc:
+            return ToolResult(success=False, error=f"Input validation failed: {exc}")
 
         # Permission gate
         for resource, level in tool.required_permissions:
@@ -255,6 +265,12 @@ class AgentLoop:
         except Exception as exc:
             logger.exception("Tool %s raised", name)
             return ToolResult(success=False, error=str(exc))
+
+    def _filesystem_roots(self) -> List[str]:
+        roots: List[str] = []
+        for perm in self.pm.permission_set.get_permissions(ResourceType.FILESYSTEM):
+            roots.extend(perm.paths)
+        return roots
 
     def _track_failure(
         self, name: str, inputs: Dict[str, Any], result: ToolResult

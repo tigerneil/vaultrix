@@ -93,7 +93,7 @@ python -m vaultrix.cli
 ```bash
 # Configure your LLM provider
 vaultrix config set llm.provider anthropic
-vaultrix config set llm.api_key YOUR_API_KEY
+export ANTHROPIC_API_KEY="YOUR_API_KEY"
 
 # Start the agent in interactive mode
 vaultrix start --interactive

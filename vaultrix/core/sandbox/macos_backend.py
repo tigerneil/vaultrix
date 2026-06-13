@@ -15,9 +15,9 @@ with zero extra dependencies — works out of the box on any Mac.
 from __future__ import annotations
 
 import logging
-import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import uuid
 from datetime import datetime, timezone
@@ -30,6 +30,7 @@ from vaultrix.core.sandbox.models import (
     SandboxInfo,
     SandboxStatus,
 )
+from vaultrix.core.sandbox.local_backend import _is_relative_to, _sandbox_environment
 
 logger = logging.getLogger(__name__)
 
@@ -169,25 +170,22 @@ class MacOSBackend(SandboxBackend):
         cwd = str(self._workspace / "workspace")
         if workdir:
             resolved = (self._workspace / workdir.lstrip("/")).resolve()
-            if str(resolved).startswith(str(self._workspace)):
+            if _is_relative_to(resolved, self._workspace.resolve()):
                 cwd = str(resolved)
 
         # Resolve the real workspace path (macOS /tmp → /private/tmp)
         real_workspace = str(self._workspace.resolve())
 
         # Build the sandbox-exec wrapper
+        resolved_command = self._resolve_command(command)
         sandbox_argv = [
             "/usr/bin/sandbox-exec",
             "-f", str(self._profile_path),
             "-D", f"WORKSPACE={real_workspace}",
-            *command,
+            *resolved_command,
         ]
 
-        env = {
-            **os.environ,
-            "VAULTRIX_SANDBOX": "macos",
-            "HOME": str(self._workspace),
-        }
+        env = _sandbox_environment(self._workspace, "macos")
 
         try:
             proc = subprocess.run(
@@ -281,10 +279,17 @@ class MacOSBackend(SandboxBackend):
         assert self._workspace is not None
         clean = Path(path.lstrip("/"))
         real = (self._workspace / clean).resolve()
-        if not str(real).startswith(str(self._workspace.resolve())):
+        if not _is_relative_to(real, self._workspace.resolve()):
             from vaultrix.core.sandbox.manager import SandboxException
             raise SandboxException(f"Path escapes sandbox: {path}")
         return real
+
+    def _resolve_command(self, command: List[str]) -> List[str]:
+        if not command:
+            return command
+        if command[0] in {"python", "python3"}:
+            return [sys.executable, *command[1:]]
+        return command
 
     def _log(self, msg: str) -> None:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")

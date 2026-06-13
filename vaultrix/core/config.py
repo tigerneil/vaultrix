@@ -8,6 +8,9 @@ import yaml
 from pydantic import BaseModel, field_validator
 
 
+_SECRET_FIELDS = {"llm_api_key"}
+
+
 class VaultrixConfig(BaseModel):
     """Vaultrix configuration schema."""
 
@@ -49,7 +52,7 @@ class VaultrixConfig(BaseModel):
     @field_validator("sandbox_backend")
     @classmethod
     def validate_sandbox_backend(cls, v: str) -> str:
-        allowed = {"auto", "docker", "local"}
+        allowed = {"auto", "docker", "macos", "local"}
         if v not in allowed:
             raise ValueError(f"sandbox_backend must be one of {allowed}, got {v!r}")
         return v
@@ -152,6 +155,11 @@ class ConfigManager:
                 if isinstance(raw, dict):
                     data = raw
 
+        # API keys must come from the runtime environment or a secret manager,
+        # not from plaintext YAML on disk.  Ignore legacy persisted keys.
+        for secret_field in _SECRET_FIELDS:
+            data.pop(secret_field, None)
+
         # Apply environment variable overrides
         for env_var, field_name in _ENV_OVERRIDES.items():
             env_val = os.environ.get(env_var)
@@ -171,9 +179,8 @@ class ConfigManager:
         self._config_dir.mkdir(parents=True, exist_ok=True)
 
         data = config.model_dump()
-        # Don't persist the API key if it came from the environment
-        if data.get("llm_api_key") and os.environ.get("ANTHROPIC_API_KEY") == data["llm_api_key"]:
-            data["llm_api_key"] = None
+        for secret_field in _SECRET_FIELDS:
+            data.pop(secret_field, None)
 
         with open(self.config_path, "w") as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
@@ -187,6 +194,11 @@ class ConfigManager:
     def set(self, key: str, value: Any) -> None:
         """Set a config value using dot-notation and save."""
         field_name = _resolve_dot_key(key)
+        if field_name in _SECRET_FIELDS:
+            raise ValueError(
+                "Refusing to persist llm_api_key to disk. "
+                "Set ANTHROPIC_API_KEY in your environment or secret manager instead."
+            )
         value = _coerce_value(field_name, value)
         config = self.load()
         setattr(config, field_name, value)

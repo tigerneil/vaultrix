@@ -27,6 +27,35 @@ from vaultrix.core.sandbox.models import (
 
 logger = logging.getLogger(__name__)
 
+def _sandbox_environment(workspace: Path, backend_name: str) -> Dict[str, str]:
+    """Return a minimal environment for sandbox subprocesses.
+
+    The local backend is intentionally weaker than Docker/macOS isolation,
+    so it must not leak host credentials such as ANTHROPIC_API_KEY into
+    untrusted subprocesses.
+    """
+    env: Dict[str, str] = {
+        "HOME": str(workspace),
+        "PATH": os.environ.get(
+            "PATH",
+            "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        ),
+        "VAULTRIX_SANDBOX": backend_name,
+    }
+    for key in ("LANG", "LC_ALL", "LC_CTYPE", "TERM", "TMPDIR"):
+        value = os.environ.get(key)
+        if value:
+            env[key] = value
+    return env
+
+
+def _is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
 
 class LocalBackend(SandboxBackend):
     """Subprocess-based sandbox with filesystem isolation.
@@ -84,10 +113,9 @@ class LocalBackend(SandboxBackend):
         cwd = str(self._workspace / "workspace")
         if workdir:
             resolved = (self._workspace / workdir.lstrip("/")).resolve()
-            if str(resolved).startswith(str(self._workspace)):
+            if _is_relative_to(resolved, self._workspace.resolve()):
                 cwd = str(resolved)
-
-        env = {**os.environ, "VAULTRIX_SANDBOX": "local", "HOME": str(self._workspace)}
+        env = _sandbox_environment(self._workspace, "local")
         resolved_command = self._resolve_command(command)
 
         try:
@@ -177,7 +205,7 @@ class LocalBackend(SandboxBackend):
         assert self._workspace is not None
         clean = Path(path.lstrip("/"))
         real = (self._workspace / clean).resolve()
-        if not str(real).startswith(str(self._workspace.resolve())):
+        if not _is_relative_to(real, self._workspace.resolve()):
             from vaultrix.core.sandbox.manager import SandboxException
             raise SandboxException(f"Path escapes sandbox: {path}")
         return real
@@ -195,11 +223,11 @@ class LocalBackend(SandboxBackend):
             return command
 
         executable = command[0]
-        if os.path.sep in executable or shutil.which(executable):
-            return command
 
         if executable in {"python", "python3"}:
             return [sys.executable, *command[1:]]
+        if os.path.sep in executable or shutil.which(executable):
+            return command
 
         return command
 

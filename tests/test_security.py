@@ -6,12 +6,17 @@ Covers:
 - Permission expiry
 - Multi-permission matching
 - AST scanner detection
+- Config secret handling
+- AgentLoop input validation
 """
 
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+import pytest
 
 
+from vaultrix.core.agent.loop import AgentLoop
+from vaultrix.core.config import ConfigManager, VaultrixConfig
 from vaultrix.core.permissions import (
     PermissionManager,
     PermissionSet,
@@ -20,6 +25,7 @@ from vaultrix.core.permissions import (
     PermissionLevel,
 )
 from vaultrix.core.permissions.models import _safe_path_match
+from vaultrix.core.tools.base import Tool, ToolRegistry, ToolResult
 from vaultrix.safehub.scanner.analyzer import scan_skill
 
 
@@ -193,3 +199,110 @@ class TestScanner:
         result = scan_skill(tmp_path, "os_skill")
         assert not result.passed
         assert any("os" in f.message.lower() for f in result.findings)
+
+
+# ── Config secret handling tests ──────────────────────────────────────────
+
+
+class TestConfigSecrets:
+    def test_api_key_from_file_is_ignored(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        mgr = ConfigManager(tmp_path)
+        mgr.config_path.parent.mkdir(parents=True, exist_ok=True)
+        mgr.config_path.write_text("llm_api_key: sk-file-secret\nllm_provider: anthropic\n")
+
+        assert mgr.load().llm_api_key is None
+
+    def test_api_key_from_env_loads_but_is_not_saved(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-env-secret")
+        mgr = ConfigManager(tmp_path)
+
+        cfg = mgr.load()
+        assert cfg.llm_api_key == "sk-env-secret"
+        mgr.save(cfg)
+
+        saved = mgr.config_path.read_text()
+        assert "sk-env-secret" not in saved
+        assert "llm_api_key" not in saved
+
+    def test_config_set_refuses_to_persist_api_key(self, tmp_path: Path):
+        mgr = ConfigManager(tmp_path)
+
+        with pytest.raises(ValueError, match="Refusing to persist"):
+            mgr.set("llm.api_key", "sk-dont-write")
+
+        assert not mgr.config_path.exists()
+
+    def test_macos_backend_is_valid_config_value(self):
+        assert VaultrixConfig(sandbox_backend="macos").sandbox_backend == "macos"
+
+
+# ── AgentLoop input validation tests ──────────────────────────────────────
+
+
+class RecordingFileTool(Tool):
+    name = "record_file"
+    description = "Record a filesystem operation."
+    parameters_schema = {
+        "type": "object",
+        "properties": {"path": {"type": "string"}},
+        "required": ["path"],
+    }
+    required_permissions = [(ResourceType.FILESYSTEM, PermissionLevel.WRITE)]
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def execute(self, **kwargs):
+        self.calls += 1
+        return ToolResult(success=True, output="executed")
+
+
+class TestAgentLoopInputValidation:
+    def _loop_with_tool(self, tool: RecordingFileTool) -> AgentLoop:
+        perm_set = PermissionSet(
+            name="loop-test",
+            permissions=[
+                Permission(
+                    resource_type=ResourceType.FILESYSTEM,
+                    level=PermissionLevel.WRITE,
+                    paths=["/workspace"],
+                )
+            ],
+        )
+        registry = ToolRegistry()
+        registry.register(tool)
+        return AgentLoop(PermissionManager(perm_set), registry)
+
+    def test_tool_input_blocks_path_outside_permission_roots(self):
+        tool = RecordingFileTool()
+        loop = self._loop_with_tool(tool)
+
+        result = loop._invoke_tool("record_file", {"path": "/etc/passwd"})
+
+        assert not result.success
+        assert "Input validation failed" in result.error
+        assert tool.calls == 0
+
+    def test_tool_input_blocks_executable_file_extensions(self):
+        tool = RecordingFileTool()
+        loop = self._loop_with_tool(tool)
+
+        result = loop._invoke_tool("record_file", {"path": "/workspace/payload.sh"})
+
+        assert not result.success
+        assert "Input validation failed" in result.error
+        assert tool.calls == 0
+
+    def test_validated_tool_input_reaches_tool(self):
+        tool = RecordingFileTool()
+        loop = self._loop_with_tool(tool)
+
+        result = loop._invoke_tool("record_file", {"path": "/workspace/output.txt"})
+
+        assert result.success
+        assert tool.calls == 1

@@ -1,12 +1,14 @@
 """Sandbox manager — delegates to the best available backend.
 
 Auto-selects Docker if available, otherwise falls back to the local
-subprocess backend.  Never crashes on import.
+macOS sandbox-exec backend when available, then the local subprocess
+backend.  Never crashes on import.
 """
 
 from __future__ import annotations
 
 import logging
+import os
 import shlex
 from typing import Any, Dict, List, Optional
 
@@ -22,8 +24,7 @@ logger = logging.getLogger(__name__)
 class SandboxException(Exception):
     """Base exception for sandbox operations."""
 
-
-def _detect_backend():
+def _docker_backend():
     """Return the best available backend instance (Docker > Local)."""
     try:
         import docker  # noqa: F401
@@ -32,9 +33,42 @@ def _detect_backend():
         from vaultrix.core.sandbox.docker_backend import DockerBackend
         return DockerBackend()
     except Exception:
-        pass
+        return None
+
+
+def _macos_backend():
+    try:
+        from vaultrix.core.sandbox.macos_backend import MacOSBackend, _sandbox_exec_available
+
+        if _sandbox_exec_available():
+            return MacOSBackend()
+    except Exception:
+        return None
+    return None
+
+
+def _local_backend():
     from vaultrix.core.sandbox.local_backend import LocalBackend
     return LocalBackend()
+
+def _detect_backend(preferred: str = "auto"):
+    """Return the requested backend or the strongest available backend."""
+    if preferred == "docker":
+        backend = _docker_backend()
+        if backend is None:
+            raise SandboxException("Docker backend requested but Docker is unavailable")
+        return backend
+    if preferred == "macos":
+        backend = _macos_backend()
+        if backend is None:
+            raise SandboxException("macOS backend requested but sandbox-exec is unavailable")
+        return backend
+    if preferred == "local":
+        return _local_backend()
+    if preferred != "auto":
+        raise SandboxException(f"Unknown sandbox backend: {preferred}")
+
+    return _docker_backend() or _macos_backend() or _local_backend()
 
 
 class SandboxManager:
@@ -48,11 +82,13 @@ class SandboxManager:
         self,
         config: Optional[SandboxConfig] = None,
         backend: Optional["SandboxBackend"] = None,  # noqa: F821
+        backend_name: Optional[str] = None,
     ):
         from vaultrix.core.sandbox.backend import SandboxBackend  # noqa: F811
 
         self.config = config or SandboxConfig()
-        self._backend: SandboxBackend = backend or _detect_backend()
+        preferred_backend = backend_name or os.environ.get("VAULTRIX_SANDBOX_BACKEND", "auto")
+        self._backend: SandboxBackend = backend or _detect_backend(preferred_backend)
         logger.info(
             "SandboxManager using %s backend",
             type(self._backend).__name__,
